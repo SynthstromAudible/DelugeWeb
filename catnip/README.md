@@ -23,6 +23,8 @@ A100F007 Play Start
 
 A2002000 ~Play
 
+You can also capture log info from RTT (JLink real time trace). This avoids using the Midi SysEx mechanism and is thus slightly faster. Use the file opening button.
+
 The code keys off the first word in the statement to find a trace "tag". Each tag gets its own line.
 In the above example, the "~" is a cue that this println is an "ending event" that matches the
 earlier tag value, so the tracer will draw a bar showing the start time and the ending time connected.
