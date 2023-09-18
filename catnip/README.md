@@ -29,6 +29,9 @@ The code keys off the first word in the statement to find a trace "tag". Each ta
 In the above example, the "~" is a cue that this println is an "ending event" that matches the
 earlier tag value, so the tracer will draw a bar showing the start time and the ending time connected.
 
+
+If you don't use the ~, you will get a "callout event" rather than an interval.
+
 If the print() / println() has a number in it, such as:
 
 Debug::println(63);
@@ -52,9 +55,9 @@ sdt.stop(); // this stops the stopwatch. Note you don't need the tag, since we a
 
 If you don't call stop(), the STimer destructor will. This might be right after creation due to C++ optimization.
 
-The RTrace stopwatch generates a special log entry with both start time and duration in one event.
+The RTimer stopwatch generates a special log entry with both start time and duration in one event.
 
-You can reset RTrace to get a new starting time without creating a new object.
+You can reset RTimer to get a new starting time without creating a new object.
 
 sdt.stop(char *str );
 
