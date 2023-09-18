@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="./viewEvents.js" type="module"></script>
+    <link rel="stylesheet" href="css/app.css">
+    <title>View Events</title>
+    <div id="tippytemp" style="display: none;"></div>
+  </head>
+  <body>
+
+<input id='opener' name="file" type="file" accept=".txt,.log" />
+Scale:
+<select id = "scale" >  
+<option>1</option>  
+<option>2</option>  
+<option>5</option>
+<option>10</option>
+<option>20</option>
+<option>50</option>
+<option>100</option>
+<option>200</option>
+<option>500</option>
+<option>1,000</option>
+<option>2,000</option>
+<option>5,000</option>
+<option>10,000</option>
+<option>20,000</option>
+<option>50,000</option>
+<option>100,000</option>
+<option>200,000</option>
+<option>500,000</option>
+<option>1,000,000</option>
+<option>2,000,000</option>
+<option selected='true'>5,000,000</option>
+<option>10,000,000</option>
+<option>20,000,000</option>
+<option>50,000,000</option>
+<option>100,000,000</option>
+<option>200,000,000</option>
+<option>500,000,000</option>
+</select>&nbsp; ticks/pixel.
+&nbsp;
+Graph Height:
+
+<select id = "plotH" >  
+<option>10</option>
+<option>20</option>
+<option>50</option>
+<option selected='true'>100</option>
+<option>200</option>
+<option>500</option>
+</select>&nbsp;pixels.
+<br/>Midi:
+     in: <select id="chooseIn"><option label="(none)" value="" id="noneInput"/></select>
+     out: <select id="chooseOut"><option label="(none)" value="" id="noneOutput"/></select>
+     &nbsp;
+     <button type="button" id="getDebugButton">Start SysEx</button>
+     &nbsp;
+     <button type="button" id="stopDebugButton">Stop SysEx</button>
+     &nbsp;
+		 <button type="button" id="clearbut">Clear</button>
+<p/>
+		 <div class="timeline" id="plot">
+		</div>
+		<hr/>
+				 <div class='status' id="midiStatus">inactive</div>
+     <div id="debugOutput" class="outbox">
+     </div>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "viewEvents",
+  "version": "1.0.0",
+  "description": "Views Eventstreams.",
+  "main": "viewEvents.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/start.js ",
+    "dev": "webpack --mode development --config webpack.config.js",
+    "build": "webpack --mode production --config webpack.config.prod.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "webpack": "^4.30.0",
+    "express": "^4.15.2",
+    "jquery": "^3.4.1"
+  },
+  "devDependencies": {
+    "file-loader": "^1.1.11",
+    "webpack-cli": "^3.3.1"
+  },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
+  }
+}
