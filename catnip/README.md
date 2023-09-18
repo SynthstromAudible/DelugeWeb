@@ -29,6 +29,10 @@ earlier tag value, so the tracer will draw a bar showing the start time and the 
 
 If the print() / println() has a number in it, such as:
 
+Debug::print("Loop Count";Debug::print(32);Debug::println("");
+
+You will see:
+
 02002123 Loop Count 63
 
 then the tracer will take all the values from the "Loop" tag and plot them as a time-series graph.
