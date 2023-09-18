@@ -1,5 +1,10 @@
 Basic Tracing in the Deluge.
 
+There is a ready-to-run version of the tracer at:
+
+https://www.fentonia.com/deluge/trace/
+
+
 The catnip tracer application uses the Debug::print() and Debug::println() statements to generate log data.
 
 Place such statements where you want logging to take place, and turn such logging on.
