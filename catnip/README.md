@@ -31,7 +31,7 @@ earlier tag value, so the tracer will draw a bar showing the start time and the 
 
 If the print() / println() has a number in it, such as:
 
-Debug::print("Loop Count";Debug::print(32);Debug::println("");
+Debug::println(63);
 
 You will see:
 
@@ -39,15 +39,25 @@ You will see:
 
 then the tracer will take all the values from the "Loop" tag and plot them as a time-series graph.
 
+The first word is the tag, the last number is value for the time series.
 There are other tricks to this not documented here. They will be when we get the "trace-helper" classes closer to final.
 
 An example trace-helper looks like this:
 
-RTrace sdt("SDread"); // this captures a "start time".
+RTimer sdt("SDread"); // this captures a "start time".
 
 ... code
 
-sdt.stop("done"); // this stops the stopwatch. Note you don't need the tag, since we already have SDread.
+sdt.stop(); // this stops the stopwatch. Note you don't need the tag, since we already have SDread.
+
+If you don't call stop(), the STimer destructor will. This might be right after creation due to C++ optimization.
 
 The RTrace stopwatch generates a special log entry with both start time and duration in one event.
 
+You can reset RTrace to get a new starting time without creating a new object.
+
+sdt.stop(char *str );
+
+ tacks the string str onto the end of start ime string. It is concatenated so if you may want to put include a space in it if you want to add-on a separate word.
+ 
+ 
