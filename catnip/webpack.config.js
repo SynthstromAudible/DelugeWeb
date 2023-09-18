@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/viewEvents.jsx',
+  entry: './src/viewEvents.js',
   watch: true,
   watchOptions: {ignored: 'node_modules/'},
    devtool: 'inline-source-map',
