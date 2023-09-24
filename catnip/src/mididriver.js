@@ -160,7 +160,8 @@ function handleData(msg) {
 
 function decode(data) {
   if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
-    console.log("foreign sysex?")
+    console.log("foreign sysex?");
+    console.log(data);
     return;
   }
     if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
