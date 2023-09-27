@@ -7,6 +7,41 @@ import $ from'jquery';
 import uPlot from "./js/uPlot.esm.js";
 import timelinePlugin from "./js/timelinePlugin.js";
 
+class TagInfo {
+	  constructor() {
+	  	this.ybase = 0;
+			this.reset();
+	  }
+
+	  reset() {
+	  	this.minTime = Number.MAX_VALUE;
+	  	this.maxTime = Number.MIN_VALUE;
+	  	this.minRange = Number.MAX_VALUE;
+	  	this.maxRange = Number.MIN_VALUE;
+	  	this.eventCount = 0;
+	  	this.hasTSData = false;
+	  }
+
+		updateForEvent(evt) {
+				if (evt.value !== undefined) {
+					this.hasTSData = true;
+          if (evt.value < this.minRange) {
+          		this.minRange = evt.value;
+          }
+          if (evt.value > this.maxRange) {
+          		this.maxRange = evt.value; 
+          }
+        }
+       if (evt.absTime < this.minTime) {
+          this.minTime = evt.absTime;
+       }
+       if (evt.absTime > this.maxTime) {
+          this.maxTime = evt.absTime; 
+       }
+      this.eventCount++;
+		}
+}
+
 	let colorTab = [
 	 "red",
 	 "green",
@@ -66,7 +101,68 @@ class uPlotter {
 		}
 		return tsArray;
 	}
+
+	makeLineChart(o, d, tagInfo, appendToElement) {
+					if (d === undefined) {
+							return;
+					}
+					let seriesInfo = new Array();
+					let axisInfo  = new Array({});
+					let title = tagInfo.tagList[0];
+
+					seriesInfo.push({label: title});
 	
+					for (let i = 0; i < tagInfo.tagList.length; ++i) {
+						let tag = tagInfo.tagList[i];
+						let gline = {
+							label: tag,
+							width: 2,
+							spanGaps: true,
+							
+				// series style
+      			stroke: colorTab[i % colorTab.length],
+      			//fill: "rgba(255, 0, 0, 0.3)",
+      			//dash: [10, 5],
+						};
+						seriesInfo.push(gline);
+						
+						let aInfo = {
+							scale: tag,
+						};
+					axisInfo.push(aInfo);
+					}
+					
+				const opts = {
+					width:  window.innerWidth,
+					height: this.viewer.plotHeight,
+					title: o.title ?? title,
+					drawOrder: ["series", "axes"],
+	
+					scales: {
+						x: {
+							time: o.time ?? false,
+						}
+	
+					},
+					axes: [
+						{},
+						{},
+					],
+					
+					legend: {
+					//	live: false,
+						markers: {
+							width: 0,
+						}
+					},
+	
+				//	padding: [null, 0, null, 0],
+					series: seriesInfo,
+				};
+
+				let u = new uPlot(opts, d, appendToElement);
+			}
+
 	
 genTLArray(events, tagInfo) {
     if (events.length === 0) return;
@@ -98,7 +194,6 @@ genTLArray(events, tagInfo) {
             	 eventsInProgress.delete(k);
             	}
         });
-
 
         let done = false;
         while (ex < events.length && !done) {
@@ -141,61 +236,6 @@ genTLArray(events, tagInfo) {
     return tsArray;
 }
 
-
-	makeLineChart(o, d, tagInfo) {
-					if (d === undefined) {
-							$("#uplot").empty();
-							return;
-					}
-					let seriesInfo = new Array();
-					seriesInfo.push({label: "Values"});
-	
-					for (let i = 0; i < tagInfo.tagList.length; ++i) {
-						let tag = tagInfo.tagList[i];
-						let gline = {
-							label: tag,
-							width: 2,
-							spanGaps: true,
-							
-				// series style
-      			stroke: colorTab[i % colorTab.length],
-      			//fill: "rgba(255, 0, 0, 0.3)",
-      			//dash: [10, 5],
-						};
-						seriesInfo.push(gline);
-					}
-					
-				const opts = {
-					width:  window.innerWidth,
-					height: this.viewer.plotHeight,
-					title: o.title ?? "Values",
-					drawOrder: ["series", "axes"],
-	
-					scales: {
-						x: {
-							time: o.time ?? false,
-						}
-	
-					},
-					axes: [
-						{},
-						{},
-					],
-					
-					legend: {
-					//	live: false,
-						markers: {
-							width: 0,
-						}
-					},
-	
-				//	padding: [null, 0, null, 0],
-					series: seriesInfo,
-				};
-
-				$("#uplot").empty();
-				let u = new uPlot(opts, d, $("#uplot")[0]);
-			}
 
 	makeTimelineChart(o, d, tagInfo) {
 					if (d === undefined) {
@@ -240,7 +280,7 @@ genTLArray(events, tagInfo) {
 						{},
 						{},
 					],
-					
+
 					legend: {
 						live: false,
 						markers: {
@@ -253,7 +293,7 @@ genTLArray(events, tagInfo) {
 				};
 
 				$("#uplotl").empty();
-				if (true) {
+				if (false) {
 				  opts["plugins"] = [
 						timelinePlugin({
 							count: dat.length - 1,
@@ -266,6 +306,20 @@ genTLArray(events, tagInfo) {
 				let u = new uPlot(opts, d, $("#uplotl")[0]);
 			}
 
+  tagMinMax(events) {
+  	let tagTab = new Map();
+ 	 		for (let i=0; i < events.length; ++i) {
+ 	 			let evt = events[i];
+	 			let tag = evt.tag;
+	 			if (tag !== undefined && !tagTab.has(tag)) {
+	 				tagTab.set(tag, new TagInfo());
+	 			}
+	
+  		let tinfo = tagTab.get(tag);
+  		tinfo.updateForEvent(evt);
+  	}
+  	return tagTab;
+  }
 
 	filterEvents(filtfun) {
 			let filtered = [];
@@ -287,22 +341,16 @@ genTLArray(events, tagInfo) {
 
 	 genTagTables(events)
 	 {
-	 	  let tagSet = new Set();
+	 	  let tagInfoList = this.tagMinMax(events);
 
-	 		for (let i=0; i < events.length; ++i) {
-	 			let tag = events[i].tag;
-	 			if (tag !== undefined && !tagSet.has(tag)) {
-	 				tagSet.add(tag);
-	 			}
-	 		}
-	 		let tagList = Array.from(tagSet.values());
+	 		let tagList = Array.from(tagInfoList.keys());
 	 		tagList.sort();
 	
 			let tagMap = new Map();
 	 		for (let i = 0; i < tagList.length; ++i) {
 	 			tagMap.set(tagList[i], i + 1);
 	 		}
-	 		return {tagList, tagMap};
+	 		return {tagList, tagMap, tagInfoList};
 	 }
 
 	alignTimes(tm) {
@@ -310,6 +358,7 @@ genTLArray(events, tagInfo) {
 		let maxV = Number.MIN_VALUE;
 		for (let lm = 0; lm < tm.length; ++lm) {
 			let m = tm[lm];
+			if (m === undefined) continue;
 			if (m[0][0] < minV) {
 				minV = m[0][0];
 			}
@@ -321,6 +370,7 @@ genTLArray(events, tagInfo) {
 
 		for (let lm = 0; lm < tm.length; ++lm) {
 			let m = tm[lm];
+			if (m === undefined) continue;
 			if (m[0][0] > minV) {
 				m[0].unshift(minV);
 				for (let r = 1; r < m.length; ++r) {
@@ -341,23 +391,37 @@ genTLArray(events, tagInfo) {
   	let performance = window.performance;
     let rstart = performance.now();
   	let tsEvents = this.filterEvents((evt)=>evt.value != undefined && evt.value >= 0);
-  	let tagInfo1 = this.genTagTables(tsEvents);
-		let tsData = this.genTSArray(tsEvents, tagInfo1);
-		let tlEvents = this.filterEvents((evt)=>evt.value === undefined);
-		let tagInfo2 = this.genTagTables(tlEvents);
-		let tlData = this.genTLArray(tlEvents, tagInfo2);
-		if (tsData !== undefined && tlData !== undefined) {
-			this.alignTimes([tsData, tlData]);
+  	
+  	let allTSTags = this.genTagTables(tsEvents);
+	
+		let allPlotsMade = [];
+		let allTSPlotData = [];
+		// For each tab in the values table list, break into subplots
+		for (let i = 0; i < allTSTags.tagList.length; ++i) {
+			let aTagToDo = allTSTags.tagList[i];
+			let aTagEvents = this.filterEvents((evt)=>evt.tag === aTagToDo);
+			let tagTablefor1 = this.genTagTables(aTagEvents);
+			let aValuePlotArray = this.genTSArray(aTagEvents, tagTablefor1);
+			allTSPlotData.push({aValuePlotArray, tagTablefor1});
+			allPlotsMade.push(aValuePlotArray);
 		}
 
-  	this.makeLineChart({mode: 1}, tsData, tagInfo1);
-  
-		this.makeTimelineChart({mode: 2, spanGaps: false}, tlData, tagInfo2);
+		let tlEvents = this.filterEvents((evt)=>evt.value === undefined);
+		let tagTable2 = this.genTagTables(tlEvents);
+		let tlData = this.genTLArray(tlEvents, tagTable2);
+		allPlotsMade.push(tlData);
+		this.alignTimes(allPlotsMade);
+		$("#uplot").empty();
+		for (let x = 0; x < allTSPlotData.length; ++x) {
+  			this.makeLineChart({mode: 1}, allTSPlotData[x].aValuePlotArray, allTSPlotData[x].tagTablefor1, $("#uplot")[0]);
+  	}
+
+		this.makeTimelineChart({mode: 2, spanGaps: false}, tlData, tagTable2);
 		
 		let rend = performance.now();
     //console.log("Time to render uPlot: " + (rend - rstart));
   }
 };
 
-export {uPlotter};
+export {uPlotter, TagInfo};
 	
