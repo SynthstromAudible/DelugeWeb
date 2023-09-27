@@ -9,7 +9,7 @@ import {uPlotter} from "./uPlotter.js";
 
 var activeView;
 // We must also update the 'selected' attribute in the dropdown element in the html file.
-var lastTicksPerPixel = 5000000;
+var lastTimeScale = 400000000;
 
 var lastPlotHeight = 100;
 
@@ -25,11 +25,12 @@ let rttcapture =
 00> 665F31E9 fur 100
 00> 665F3200 Cats
 00> 665F32FF uS per 320 samples: 112
-00> 66E74C00 cows
+00> 66E74C00,00100000 cows
 00> 66E761E9 fur 20
 00> 66E76C1E uS per 320 samples: 15
 00> 66E7A000 ~cows
-00> 66FF3200 Cats
+00> 66E7A040,00010000 Callie
+00> 66FF3200,00200000 Cats
 00> 66FF8200 Purrs
 00> 67FF8900 fur 130
 `
@@ -157,7 +158,7 @@ class EventScanner
     this.maxY = 0;
     this.plotHeight = lastPlotHeight;
     this.laneHeight = 16;
-    this.ticksPerPixel = lastTicksPerPixel;
+    this.timeScale = lastTimeScale;
     this.captureStart = Date.now();
 
   }
@@ -413,13 +414,13 @@ class EventScanner
   	let performance = window.performance;
   	let rstart = performance.now();
     let firsttime = this.minAbsTime;
-    let lastX = (this.maxAbsTime - this.minAbsTime) / this.ticksPerPixel;
+    let lastX = (this.maxAbsTime - this.minAbsTime) / this.timeScale;
     let timeline = $("<div/>");
     let lastXMap = new Map();
     let lastYMap = new Map();
     let lastEventForTag = new Map();
     timeline.addClass('timeline');
-    let maxWidth = ((this.maxAbsTime - this.minAbsTime) / this.ticksPerPixel);
+    let maxWidth = ((this.maxAbsTime - this.minAbsTime) / this.timeScale);
 		timeline.css("width", maxWidth + "px");
 		timeline.css("height", (this.maxY + this.laneHeight) + "px");
     for (let i = 0; i < this.events.length; ++i) {
@@ -435,7 +436,7 @@ class EventScanner
         let range = (maxV - minV);
         if (range === 0) range = 1;
         y += this.plotHeight - (((evt.value - minV) * this.plotHeight) / range);
-        let x = relT / this.ticksPerPixel;
+        let x = relT / this.timeScale;
         if (this.flipped) {
         	x = lastX - x;
         }
@@ -466,11 +467,11 @@ class EventScanner
 
 				let width = 2;
 				if (t1 != t2) {
-        	width = Math.abs(t2 - t1) / this.ticksPerPixel;
+        	width = Math.abs(t2 - t1) / this.timeScale;
   			}
         if (width < 1) width = 1;
    
-        let x = t1 /  this.ticksPerPixel;
+        let x = t1 /  this.timeScale;
         if (this.flipped) {
         	x = (lastX - x);
         } else {
@@ -564,11 +565,15 @@ function clearActiveView(event) {
 function changeScale(event)
 {
   let scaleString = new String(event.target.value);
-	let nocommas = scaleString.replaceAll(',','');
-	let asNum = Number(nocommas);
-	lastTicksPerPixel = asNum;
+  let ts = 400000000;
+  if (scaleString == "microseconds") {
+  	ts = 400;
+  } else if (scaleString == "milliseconds") {
+  	ts = 400000;
+  }
+	lastTimeScale = ts;
 	if (activeView === undefined) return;
-	activeView.ticksPerPixel = asNum;
+	activeView.timeScale = ts;
 	activeView.render();
 }
 

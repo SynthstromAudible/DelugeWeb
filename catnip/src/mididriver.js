@@ -161,7 +161,7 @@ function handleData(msg) {
 function decode(data) {
   if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
     console.log("foreign sysex?");
-    console.log(data);
+//  console.log(data);
     return;
   }
     if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
@@ -176,8 +176,6 @@ function decode(data) {
       if (i < chunks.length-1) {
         $('#debugOutput')[0].insertAdjacentElement('beforeend', document.createElement("br"));
       }
-
-
     }
   }
 }
