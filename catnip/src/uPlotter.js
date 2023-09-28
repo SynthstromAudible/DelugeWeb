@@ -163,78 +163,37 @@ class uPlotter {
 				let u = new uPlot(opts, d, appendToElement);
 			}
 
-	
 genTLArray(events, tagInfo) {
-    if (events.length === 0) return;
-    let tagCount = tagInfo.tagList.length;
-    let tsArray = new Array(tagCount + 1);
-    for (let t = 0; t < tsArray.length; ++t) {
-        tsArray[t] = [];
-		}
-    let eventsInProgress = new Map();
-    let ex = 0;
-    let nowT = (events[0].absStart - this.viewer.minAbsTime);
+	let symbols = [];
+	let minTime = this.viewer.minAbsTime;
+	for (let i = 0; i < events.length; ++i) {
+		let evt = events[i];
+		symbols.push({time: evt.absStart - minTime, dur: evt.duration, tag: evt.tag});
+	}
+	symbols.sort((a, b)=> {
+				if (a.time === b.time) return 0;
+				return (a.time < b.time) ? -1 : 1;
+			});
 
-    let tx = 0;
- 
-    while (ex < events.length || eventsInProgress.length > 0) {
-        let evt;
-        if (ex < events.length) {
-        	evt = events[ex];
-        	nowT = (evt.absStart - this.viewer.minAbsTime);
-        }
 
-        eventsInProgress.forEach((v, k) => {
-            if (v < nowT) nowT = v;
-        });
-
-        // remove events that have concluded.
-        eventsInProgress.forEach((v, k) => {
-            if (v <= nowT) {
-            	 eventsInProgress.delete(k);
-            	}
-        });
-
-        let done = false;
-        while (ex < events.length && !done) {
-            let ev2 = events[ex];
-            let thisT = (ev2.absStart - this.viewer.minAbsTime);
-            if (thisT <= nowT) {
-            	  let dur = evt.duration;
-            		if (dur === 0) dur++;
-                //console.log("thisT " + thisT + " dur " + endT);
-                eventsInProgress.set(ev2.tag, thisT + dur);
-                ex++;
-            } else done = true;
-        }
-
-        // fill in all events that occur at or before this time.
-        tsArray[0][tx] = nowT / this.scaleFactor;
-        // first, assume missing data.
-        for (let i = 0; i < tagCount; ++i) {
-            tsArray[i + 1][tx] = null;
-        }
-
-				if (eventsInProgress.length === 0) {
-					console.log("Gap at: " + nowT);
-				}
-        // ... then 'paint in' all the events in progress.
-        eventsInProgress.forEach((v, k) => {
-            let tagX = tagInfo.tagMap.get(k);
-            tsArray[tagX][tx] = tagX;
-        });
-        tx++;
-    }
-
-    // Close out the timeline with all missing values.
-    /*
-     tsArray[0].push(lastT + 1);
-     for (let i = 0; i < tagCount; ++i) {
-         tsArray[i + 1].push(null);
-     }
-*/
-    return tsArray;
-}
+		let timeA = [];
+		let yA = [];
+		let durA = [];
+	  for (let i = 0; i < symbols.length; ++i) {
+	  	let symb = symbols[i];
+	  	timeA.push(symb.time / this.scaleFactor);
+	  	let tagX = tagInfo.tagMap.get(symb.tag);
+	  	yA.push(tagX);
+	  	let dur = 0;
+	  	if (symb.dur !== undefined && symb.dur !== 0) {
+	  		dur = symb.dur;
+	  	}
+	  	durA.push(dur / this.scaleFactor);
+	  }
+	
+		let tlArray = [timeA, yA, durA];
+		return tlArray;
+};
 
 
 	makeTimelineChart(o, d, tagInfo) {
@@ -242,33 +201,78 @@ genTLArray(events, tagInfo) {
 							$("#uplotl").empty();
 							return;
 					}
+					let scaleFact = this.viewer.scaleFactor;
 					let seriesInfo = new Array();
-					seriesInfo.push({label: "Events"});
 
-					for (let i = 0; i < tagInfo.tagList.length; ++i) {
-						let tag = tagInfo.tagList[i];
-						let gline = {
-							label: tag,
+					function drawPoints(u, sidx, i0, i1) {
+						
+					let { ctx, width } = u;
+					let { _stroke, scale} = u.series[sidx];
+					let {min, max} = u.scales["x"];
+					let xR = max - min;
+
+					ctx.save();
+
+					ctx.fillStyle = _stroke;
+
+					let j = i0;
+
+					while (j <= i1) {
+						let val = u.data[sidx][j];
+						let dur = u.data[sidx + 1][j];
+						let xRaw = u.data[0][j];
+						
+						let xRawDur = xR === 0 ? 0 : (dur - min) * scaleFact / xR;
+						let cx = Math.round(u.valToPos(xRaw, 'x', true));
+				
+						let xDur = xR !== 0 ? dur * width / xR : 0;
+						let cy = Math.round(u.valToPos(val, scale, true));
+
+						ctx.save();
+						ctx.fillStyle = colorTab[val % colorTab.length];
+						let w = Math.max(8, xDur);
+						ctx.fillRect(cx, cy - 16, w, 32);
+						ctx.restore();
+						j++;
+					};
+
+					ctx.restore();
+					};
+
+					seriesInfo.push({label: "Events"});
+					let gline = {
 							width: 3,
+							label: "events",
 							spanGaps: false,
 							points: {
-								show: true,
+								show: drawPoints,
+							},
+						 // fill:   (seriesIdx, dataIdx, value) => colorTab[0 % colorTab.length],
+							 stroke: (seriesIdx, dataIdx) => {
+								return colorTab[1 % colorTab.length];
 							},
 							
-				// series style
-      			stroke: colorTab[i % colorTab.length],
-      			//fill: "rgba(255, 0, 0, 0.3)",
-      			//dash: [10, 5],
+								paths: (a, b, c, d, e, f)=> {
+									 null // stops line drawing across events.
+									},
+								lineInterpolation: null,
 						};
-						seriesInfo.push(gline);
-					}
-				let dat = d;
+					seriesInfo.push(gline);
+	
 				let tlh = tagInfo.tagList.length * 20 + 50;
+				
+				let tagNames = tagInfo.tagList;
+				let tagYs = [];
+				for (let i = 0; i < tagInfo.tagList.length; ++i) {
+					tagYs.push(tagInfo.tagMap.get(tagInfo.tagList[i]));
+				}
+
 				let opts = {
 					width:  window.innerWidth,
 					height: tlh,
 					title: o.title ?? "Events",
 					drawOrder: ["series", "axes"],
+
 					spanGaps: false,
 					scales: {
 						x: {
@@ -278,31 +282,25 @@ genTLArray(events, tagInfo) {
 					},
 					axes: [
 						{},
-						{},
+						{values: (u, splits)=>{
+							return tagNames;
+						  },
+						 splits: () => { return tagYs}
+						} 
 					],
 
 					legend: {
-						live: false,
+						show: false,
 						markers: {
 							width: 2,
 						}
 					},
 	
-				//	padding: [null, 0, null, 0],
+
 					series: seriesInfo,
 				};
 
 				$("#uplotl").empty();
-				if (false) {
-				  opts["plugins"] = [
-						timelinePlugin({
-							count: dat.length - 1,
-							...o,
-								fill:   (seriesIdx, dataIdx, value) => colorTab[seriesIdx % colorTab.length],
-								stroke: (seriesIdx, dataIdx, value) => colorTab[seriesIdx % colorTab.length]
-						})
-					];
-				}
 				let u = new uPlot(opts, d, $("#uplotl")[0]);
 			}
 
@@ -416,7 +414,7 @@ genTLArray(events, tagInfo) {
   			this.makeLineChart({mode: 1}, allTSPlotData[x].aValuePlotArray, allTSPlotData[x].tagTablefor1, $("#uplot")[0]);
   	}
 
-		this.makeTimelineChart({mode: 2, spanGaps: false}, tlData, tagTable2);
+		this.makeTimelineChart({mode: 1, spanGaps: false}, tlData, tagTable2);
 		
 		let rend = performance.now();
     //console.log("Time to render uPlot: " + (rend - rstart));

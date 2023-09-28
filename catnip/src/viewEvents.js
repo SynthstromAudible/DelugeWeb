@@ -368,8 +368,8 @@ function setEventData(fileName, text) {
   let up = new uPlotter(es);
   up.plotEverything();
 
-	let jp = new jPlot(es);
-  jp.render();
+	//let jp = new jPlot(es);
+ // jp.render();
 }
 
 
@@ -456,4 +456,4 @@ $("#scale").on('change', changeScale);
 $("#plotH").on('change', changePlotHeight);
 
 setSysExCallback(sysExCallback); setRefresh();
-setEventData("test", ""); // no quotes. rttcapture or ""
+setEventData("test", rttcapture); // no quotes. rttcapture or ""
