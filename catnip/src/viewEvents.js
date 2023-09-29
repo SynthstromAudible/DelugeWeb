@@ -3,7 +3,6 @@
 import $ from'jquery';
 import {setSysExCallback, sysExRunning} from "./mididriver.js";
 import uPlot from "./js/uPlot.esm.js";
-import timelinePlugin from "./js/timelinePlugin.js";
 import {uPlotter, TagInfo} from "./uPlotter.js";
 import {jPlot} from "./jPlot.js";
 
@@ -25,7 +24,7 @@ let rttcapture =
 00> 665F31E9 fur 100
 00> 665F3200 Cats
 00> 665F32FF uS per 320 samples: 112
-00> 66E74C00,00100000 cows
+00> 66E74C00,00100000 fur
 00> 66E761E9 fur 20
 00> 66E76C1E uS per 320 samples: 15
 00> 66E7A000 ~cows
@@ -35,6 +34,14 @@ let rttcapture =
 00> 67FF8900 fur 130
 `
 
+let simplecap =
+`00> 64E7576E,00200000 Meow
+00> 65CC5990 uS per 320 samples: 49
+00> 665F01E9 uS per 320 samples: 159
+00> 66E7A040,00010000 Callie
+00> 64E76C00 cows
+00> 64E76C1E uS per 320 sampl
+`
 let regex = /[0-9A-Fa-f]{8}/g;
 function parseHex(string)
 {
@@ -118,12 +125,14 @@ class EventScanner
   	}
 		if (matches === null) return;
     let body = inbuffer.substring(charOff, inbuffer.length).trim();
-		let ingest = Date.now();
+		let ingested = Date.now();
     let event = {
-    	ingest:			ingest,
+
 		  start:	    tsa,
 		  duration:   tsb,
-		  body:      body,
+		  body:       body,
+		  number:			this.events.length,
+		  ingested:		ingested,
     };
 
     this.events.push(event);
@@ -456,4 +465,4 @@ $("#scale").on('change', changeScale);
 $("#plotH").on('change', changePlotHeight);
 
 setSysExCallback(sysExCallback); setRefresh();
-setEventData("test", rttcapture); // no quotes. rttcapture or ""
+setEventData("test", ""); // no quotes. rttcapture or ""

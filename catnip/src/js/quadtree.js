@@ -2,11 +2,12 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
     return px >= rlft && px <= rrgt && py >= rtop && py <= rbtm;
 }
 
-!(function(global) {
 	const MAX_OBJECTS = 10;
 	const MAX_LEVELS  = 4;
 
-	function Quadtree(x, y, w, h, l) {
+	export default class Quadtree
+	{
+		constructor(x, y, w, h, l) {
 		let t = this;
 
 		t.x = x;
@@ -16,10 +17,10 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
 		t.l = l || 0;
 		t.o = [];
 		t.q = null;
-	};
+	 }
 
-	const proto = {
-		split: function() {
+
+		split() {
 			let t = this,
 				x = t.x,
 				y = t.y,
@@ -37,10 +38,10 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
 				// bottom right
 				new Quadtree(x + w, y + h, w, h, l),
 			];
-		},
+		};
 
 		// invokes callback with index of each overlapping quad
-		quads: function(x, y, w, h, cb) {
+		quads(x, y, w, h, cb) {
 			let t            = this,
 				q            = t.q,
 				hzMid        = t.x + t.w / 2,
@@ -58,9 +59,9 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
 			startIsWest && endIsSouth && cb(q[2]);
 			// bottom-right quad
 			endIsEast && endIsSouth && cb(q[3]);
-		},
+		};
 
-		add: function(o) {
+		add(o) {
 			let t = this;
 
 			if (t.q != null) {
@@ -87,9 +88,9 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
 					t.o.length = 0;
 				}
 			}
-		},
+		};
 
-		get: function(x, y, w, h, cb) {
+		get(x, y, w, h, cb) {
 			let t = this;
 			let os = t.o;
 
@@ -101,15 +102,10 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
 					q.get(x, y, w, h, cb);
 				});
 			}
-		},
+		};
 
-		clear: function() {
+		clear() {
 			this.o.length = 0;
 			this.q = null;
-		},
+		};
 	};
-
-	Object.assign(Quadtree.prototype, proto);
-
-	global.Quadtree = Quadtree;
-})(this);
