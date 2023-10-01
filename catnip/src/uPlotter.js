@@ -166,7 +166,7 @@ class TagInfo {
 							if (idxOff >= 0 && idxOff < eventArray.length) {
 
 							  evt = eventArray[idxOff];
-							  console.log(evt); console.log(idxOff);
+							  // console.log(evt); console.log(idxOff);
 							}
 							if (evt !== undefined) {
 								tt.textContent = evt.body;

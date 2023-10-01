@@ -158,6 +158,8 @@ function handleData(msg) {
   decode(msg.data)
 }
 
+let lineBuff = [];
+let lineMax = 100;
 function decode(data) {
   if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
     console.log("foreign sysex?");
@@ -170,13 +172,18 @@ function decode(data) {
     if (sysExCallback !== undefined) {
       	if (sysExRunning) sysExCallback(message);
     }
-    let chunks = message.split('\n');
-    for (let i = 0; i < chunks.length; i++) {
-      $('#debugOutput')[0].insertAdjacentText('beforeend', chunks[i])
-      if (i < chunks.length-1) {
-        $('#debugOutput')[0].insertAdjacentElement('beforeend', document.createElement("br"));
-      }
+
+    lineBuff += message;
+
+    let chunks = lineBuff.split('\n');
+    let linect = chunks.length;
+    if (linect > lineMax) {
+    	chunks = chunks.slice(linect - lineMax);
     }
+  	lineBuff = chunks.join("\n");
+		let html = chunks.join("<br>");
+    $('#debugOutput').empty();
+    $('#debugOutput').append(html);
   }
 }
 
@@ -190,7 +197,7 @@ function setRefresh() {
     theInterval = null;
   }
 
-  theInterval = setInterval(function() { renderBlock; }, 100);
+  //theInterval = setInterval(function() { renderBlock; }, 100);
 }
 
 	sysExCallback = callback;

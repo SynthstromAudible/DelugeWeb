@@ -75,6 +75,7 @@ class EventScanner
     this.lastBaseTime = 0;
     this.armed = false;
     this.previousStamp = 0;
+    this.badLines = 0;
     this.trackSet = new Set();
     this.trackOrder = [];
     this.trackMap = new Map();
@@ -125,6 +126,15 @@ class EventScanner
   	}
 		if (matches === null) return;
     let body = inbuffer.substring(charOff, inbuffer.length).trim();
+
+		// if body is a full-blown 8 digit hex number, it probably means a buffer overrun
+		// and we should reject this line. This won't catch then all, but it is better than nothing.
+		let hexMatches = body.match(match1);
+    if (hexMatches !== null && hexMatches.length > 0) {
+    	this.badLines++;
+    	return;
+    }
+ 
 		let ingested = Date.now();
     let event = {
 
@@ -377,8 +387,8 @@ function setEventData(fileName, text) {
   let up = new uPlotter(es);
   up.plotEverything();
 
-	//let jp = new jPlot(es);
- // jp.render();
+//	let jp = new jPlot(activeView);
+//  jp.render();
 }
 
 
@@ -438,6 +448,9 @@ function renderBlock()
 */
   	let up = new uPlotter(activeView);
   	up.plotEverything();
+
+//	let jp = new jPlot(activeView);
+//  jp.render();
 	}
 }
 
