@@ -1,23 +1,24 @@
 {
-  "name": "viewEvents",
-  "version": "1.0.0",
-  "description": "Views Eventstreams.",
-  "main": "viewEvents.js",
+  "name": "catnip",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/start.js ",
-    "dev": "webpack --mode development --config webpack.config.js",
-    "build": "webpack --mode production --config webpack.config.prod.js"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
-    "jquery": "^3.7.1"
+    "jquery": "^3.7.1",
+    "pinia": "^2.1.6",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "@vitejs/plugin-basic-ssl": "^1.0.1",
+    "@vitejs/plugin-vue": "^4.3.4",
+    "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "vite": "^4.4.9"
   },
   "browser": {
     "fs": false,

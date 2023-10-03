@@ -1,6 +1,4 @@
 import $ from'jquery';
-import tippy from "./js/tippy.all.min.js";
-
 
 // Draws a line without using a canvas. Uses a long thin <div> that is rotated.
 // from Craig Tab via https://stackoverflow.com/questions/14560302/html-line-drawing-without-canvas-just-js
@@ -26,40 +24,6 @@ function linedraw(x1, y1, x2, y2) {
   //console.log(str); 
   return $(str);
 }
-
-var tippyActive = false;
-
-function activateTippy() {
-	return;
-		tippy('.evt', {
-		arrow: true,
-		html: '#tippytemp',
-		onShow(pop) {
-			if (!activeView) return;
-			const content = this.querySelector('.tippy-content');
-			let eventId = pop.reference.getAttribute('data-eid');
-			if (eventId >= activeView.events.length) return;
-			let evt = activeView.events[eventId];
-			let evtStr = evt.tag + " ";
-			if (evt.value) {
-				evtStr = evt.value + " ";
-			}
-			evtStr += "t=" + (evt.absStart - activeView.firstTime) / 400000000;
-			let duration = 0;
-			if (evt.duration > 0.0){
-				duration = evt.duration;
-			} else if (evt.endEvent) {
-				let px = activeView.searchForPreviousEvent(eventId, evt.tag);
-				duration = evt.absStart - activeView.events[px].absStart;
-			}
-			let dur = duration / 400000000;
-			if (dur > 0.0) evtStr += ", \u0394t=" + dur;
-			evtStr += "<br>" + evt.body;
-			content.innerHTML = evtStr;
-		},
-	});
-}
-
 
 class jPlot {
 

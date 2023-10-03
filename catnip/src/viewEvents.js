@@ -5,6 +5,9 @@ import {setSysExCallback, sysExRunning} from "./mididriver.js";
 import uPlot from "./js/uPlot.esm.js";
 import {uPlotter, TagInfo} from "./uPlotter.js";
 import {jPlot} from "./jPlot.js";
+//import { createApp } from 'vue';
+//import App from './App.vue';
+
 
 var activeView;
 // We must also update the 'selected' attribute in the dropdown element in the html file.
