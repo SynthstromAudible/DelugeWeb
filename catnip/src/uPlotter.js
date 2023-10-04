@@ -6,41 +6,8 @@ import $ from'jquery';
 
 import uPlot from "./js/uPlot.esm.js";
 import Quadtree from "./js/quadtree.js";
-
-class TagInfo {
-	  constructor() {
-	  	this.ybase = 0;
-			this.reset();
-	  }
-
-	  reset() {
-	  	this.minTime = Number.MAX_VALUE;
-	  	this.maxTime = Number.MIN_VALUE;
-	  	this.minRange = Number.MAX_VALUE;
-	  	this.maxRange = Number.MIN_VALUE;
-	  	this.eventCount = 0;
-	  	this.hasTSData = false;
-	  }
-
-		updateForEvent(evt) {
-				if (evt.value !== undefined) {
-					this.hasTSData = true;
-          if (evt.value < this.minRange) {
-          		this.minRange = evt.value;
-          }
-          if (evt.value > this.maxRange) {
-          		this.maxRange = evt.value; 
-          }
-        }
-       if (evt.absTime < this.minTime) {
-          this.minTime = evt.absTime;
-       }
-       if (evt.absTime > this.maxTime) {
-          this.maxTime = evt.absTime; 
-       }
-      this.eventCount++;
-		}
-}
+import {TagInfo} from "./EventScanner.js";
+import {ViewParams} from "./viewEvents.js";
 
 	let colorTab = [
 	 "red",
@@ -131,7 +98,7 @@ class TagInfo {
 				}
 
 				function setCursor(u) {
-					const {left, top, idx} = u.cursor;
+					let {left, top, idx} = u.cursor;
 
 					opts?.cursorMemo?.set(left, top);
 
@@ -200,12 +167,11 @@ class TagInfo {
 
 class uPlotter {
 
-  constructor(viewer) {
-  	this.viewer = viewer;
-  	this.scaleFactor  = viewer.timeScale;
+  constructor(scanner) {
+  	this.scanner = scanner;
+  	this.scaleFactor = ViewParams.timeScale;
   }
  
-			
 	genTSArray(events, tagInfo, indexArray) {
 
 	  if (events.length === 0) return;
@@ -221,7 +187,7 @@ class uPlotter {
 		while (ex < events.length)
 		{
 			let evt = events[ex];
-			let nowT = (evt.absStart - this.viewer.minAbsTime) / this.scaleFactor;
+			let nowT = (evt.absStart - this.scanner.minAbsTime) / this.scaleFactor;
 				// fill in the array for the current time step:
 			tsArray[0][tx] = nowT;
 			
@@ -233,7 +199,7 @@ class uPlotter {
 			let done = false;
 			while (ex < events.length && !done) {
 				let ev2 = events[ex]
-				let thisT = (ev2.absStart - this.viewer.minAbsTime) / this.scaleFactor;
+				let thisT = (ev2.absStart - this.scanner.minAbsTime) / this.scaleFactor;
 				if (thisT <= nowT) {
 						let tag = ev2.tag;
 						let tagX = tagInfo.tagMap.get(tag);
@@ -281,7 +247,7 @@ class uPlotter {
 					
 				const opts = {
 					width:  window.innerWidth,
-					height: this.viewer.plotHeight,
+					height: ViewParams.plotHeight,
 					title: o.title ?? title,
 					drawOrder: ["series", "axes"],
 	
@@ -312,7 +278,7 @@ class uPlotter {
 
 genTLArray(events, tagInfo, indexArray) {
 	let symbols = [];
-	let minTime = this.viewer.minAbsTime;
+	let minTime = this.scanner.minAbsTime;
 	//console.log(events);
 	for (let i = 0; i < events.length; ++i) {
 		let evt = events[i];
@@ -543,8 +509,8 @@ genTLArray(events, tagInfo, indexArray) {
 
 	filterEvents(filtfun) {
 			let filtered = [];
-			for (let i=0; i < this.viewer.events.length; ++i) {
-				let evt = this.viewer.events[i];
+			for (let i=0; i < this.scanner.events.length; ++i) {
+				let evt = this.scanner.events[i];
 				if (filtfun(evt)) {
 					filtered.push(evt);
 				}
@@ -553,7 +519,7 @@ genTLArray(events, tagInfo, indexArray) {
 				if (a.absStart === b.absStart) return 0;
 				return (a.absStart < b.absStart) ? -1 : 1;
 			});
-			this.viewer.matchEndings(filtered);
+			this.scanner.matchEndings(filtered);
 			//let tsArray = this.genTSArray(filtered);
 			//console.log(tsArray);
 			return filtered;
@@ -648,5 +614,5 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
     return px >= rlft && px <= rrgt && py >= rtop && py <= rbtm;
 }
 
-export {uPlotter, TagInfo};
+export {uPlotter};
 	

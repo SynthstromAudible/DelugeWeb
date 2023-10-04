@@ -1,5 +1,7 @@
 import $ from'jquery';
 
+// This was Jamie's first attempt at a plotter. Replaced by uPlot.
+
 // Draws a line without using a canvas. Uses a long thin <div> that is rotated.
 // from Craig Tab via https://stackoverflow.com/questions/14560302/html-line-drawing-without-canvas-just-js
 // improved by Davide.
@@ -27,11 +29,32 @@ function linedraw(x1, y1, x2, y2) {
 
 class jPlot {
 
-    constructor(viewer) {
-  	this.viewer = viewer;
+    constructor(scanner) {
+  	this.scanner = scanner;
   	this.scaleFactor  = viewer.timeScale;
+  	this.trackMap = new Map();
+  	this.flipped = true;
+    this.maxY = 0;
+    this.plotHeight = lastPlotHeight;
+    this.laneHeight = 16;
+    this.timeScale = lastTimeScale;
+
   }
 
+
+  assignRows() {
+    this.trackMap.clear();
+    let y = 0;
+    for (let i = 0; i < this.trackOrder.length; ++i)
+    {
+      let tag = this.trackOrder[i];
+      this.trackMap.set(tag, y);
+      y += this.viewer.minRange.has(tag) ? this.plotHeight +  (this.laneHeight / 2) : this.laneHeight;
+    }
+    
+    this.maxY = y;
+  }
+  
   render() {
   	let performance = window.performance;
   	let rstart = performance.now();
@@ -130,10 +153,10 @@ class jPlot {
   addTagLabelsTo(timeline) {
 
 	  let keyDiv = $("<div class='overlay' style='top: 0px;left:0px'></div");
-	  let view = this.viewer;
-	  for (let i = 0; i < view.trackOrder.length; ++i) {
-	  	let tag = view.trackOrder[i];
-	  	let y = view.trackMap.get(tag);
+	  let scanner = this.scanner;
+	  for (let i = 0; i < scanner.trackOrder.length; ++i) {
+	  	let tag = scanner.trackOrder[i];
+	  	let y = scanner.trackMap.get(tag);
 	  	let labline = $("<div class='linelabel'/>");
 	  	labline.css("top", y + "px");
 	  	labline.text(tag);
