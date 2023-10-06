@@ -8,23 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "express": "^4.15.2",
-    "jquery": "^3.7.1",
-    "pinia": "^2.1.6",
-    "uplot": "^1.6.26",
-    "uplot-vue": "^1.1.5",
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.4"
+    "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-basic-ssl": "^1.0.1",
     "@vitejs/plugin-vue": "^4.3.4",
-    "@vitejs/plugin-vue-jsx": "^3.0.2",
     "vite": "^4.4.9"
-  },
-  "browser": {
-    "fs": false,
-    "os": false,
-    "path": false
   }
 }

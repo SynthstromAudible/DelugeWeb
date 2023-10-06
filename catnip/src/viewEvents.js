@@ -1,7 +1,7 @@
 "use strict";
 
 import $ from'jquery';
-import {setSysExCallback, sysExRunning} from "./mididriver.js";
+import {setSysExCallback, sysExRunning, clearLog} from "./mididriver.js";
 import uPlot from "./js/uPlot.esm.js";
 import {uPlotter} from "./uPlotter.js";
 import {jPlot} from "./jPlot.js";
@@ -71,7 +71,7 @@ function openLocal(evt) {
 }
 
 function setEventData(fileName, text) {
-  $("#plot").empty();
+  //$("#plot").empty();
   let es = new EventScanner();
   activeScanner = es;
   activeScanner.baseTime = 0;
@@ -90,7 +90,7 @@ function setEventData(fileName, text) {
 function clearActiveScanner(event) {
   let es = new EventScanner();
   activeScanner = es;
-  $("#debugOutput").empty();
+  clearLog();
 }
 
 function changeScale(event)
@@ -156,13 +156,17 @@ function sysExCallback(text) {
 	callbackBuffer = callbackBuffer.concat(text);
 }
 
+function startup () {
+	
+	/*
 $("#clearbut").on('click', clearActiveScanner);
 $("#opener").on('change', openLocal);
 $("#scale").on('change', changeScale);
 $("#plotH").on('change', changePlotHeight);
-
+*/
 setSysExCallback(sysExCallback); setRefresh();
 setEventData("test", ""); // no quotes arounf rttcapture, simplecap, or ""
 
+}
 
-export {ViewParams};
+export {ViewParams, openLocal, startup, clearActiveScanner, changeScale, changePlotHeight};

@@ -1,56 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/uPlot.min.css">
-    <title>View Events</title>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catnip App</title>
   </head>
   <body>
-    <script type="module" src="/src/viewEvents.js"></script>
-       <div id="app"></div>
-
-<input id='opener' name="file" type="file" accept=".txt,.log" />
-Scale:
-<select id = "scale" >  
-<option selected='true'>seconds</option>  
-<option>milliseconds</option>  
-<option>microseconds</option>
-</select>&nbsp;
-&nbsp;
-Graph&nbsp;Height:
-<select id = "plotH" >  
-<option>50</option>
-<option>80</option>
-<option selected='true'>100</option>
-<option>150</option>
-<option>200</option>
-<option>250</option>
-<option>300</option>
-<option>400</option>
-<option>500</option>
-</select>&nbsp;pixels.
-<br/>Midi:
-     in: <select id="chooseIn"><option label="(none)" value="" id="noneInput"/></select>
-     out: <select id="chooseOut"><option label="(none)" value="" id="noneOutput"/></select>
-     &nbsp;
-     <button type="button" id="getDebugButton">Start SysEx</button>
-     &nbsp;
-     <button type="button" id="stopDebugButton">Stop SysEx</button>
-     &nbsp;
-		 <button type="button" id="clearbut">Clear</button>
-<p/>
-		 <div class="timeline" id="plot">
-		</div>
-		<hr/>
-		<div class="uplot" id="uplot">
-			
-		</div>
-		<div class="uplotl" id="uplotl">
-			
-		</div>
-		<hr/>
-				 <div class='status' id="midiStatus">inactive</div>
-     <div id="debugOutput" class="outbox">
-     </div>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

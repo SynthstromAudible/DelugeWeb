@@ -1,13 +1,12 @@
 "use strict";
 
-
-    
 import $ from'jquery';
-
 import uPlot from "./js/uPlot.esm.js";
 import Quadtree from "./js/quadtree.js";
 import {TagInfo} from "./EventScanner.js";
 import {ViewParams} from "./viewEvents.js";
+
+let placeTable = {};
 
 	let colorTab = [
 	 "red",
@@ -20,7 +19,6 @@ import {ViewParams} from "./viewEvents.js";
 	 "gray"
 	];
 	
-
 			let cursLeft = -10;
 			let cursTop = -10;
 
@@ -314,11 +312,11 @@ genTLArray(events, tagInfo, indexArray) {
 
 
 	makeTimelineChart(o, d, tagInfo, eventArray) {
-					if (d === undefined) {
-							$("#uplotl").empty();
-							return;
-					}
-					;
+					//if (d === undefined) {
+					//		$("#uplotl").empty();
+					//		return;
+					//}
+
 					let seriesInfo = new Array();
 					//let qt;
 					let dpr = devicePixelRatio;
@@ -488,8 +486,9 @@ genTLArray(events, tagInfo, indexArray) {
 					series: seriesInfo,
 				}; // end opts
 
-				$("#uplotl").empty();
-				let u = new uPlot(opts, d, $("#uplotl")[0]);
+				let place = placeTable['timelinePlot'];
+				$(place).empty();
+				let u = new uPlot(opts, d, place);
 			}
 
   tagMinMax(events) {
@@ -574,6 +573,10 @@ genTLArray(events, tagInfo, indexArray) {
 	}
 
   plotEverything() {
+  	
+		let place1 = placeTable["valuePlots"];
+		if (place1 === undefined) return;
+
   	let performance = window.performance;
     let rstart = performance.now();
   	let tsEvents = this.filterEvents((evt)=>evt.value != undefined && evt.value >= 0);
@@ -599,9 +602,11 @@ genTLArray(events, tagInfo, indexArray) {
 		let tlData = this.genTLArray(tlEvents, tagTable2, indexArray);
 		allPlotsMade.push(tlData);
 		this.alignTimes(allPlotsMade);
-		$("#uplot").empty();
+
+		$(place1).empty();
+
 		for (let x = 0; x < allTSPlotData.length; ++x) {
-  			this.makeLineChart({mode: 1}, allTSPlotData[x].aValuePlotArray, allTSPlotData[x].tagTablefor1, allTSPlotData[x].indexArray, $("#uplot")[0]);
+  			this.makeLineChart({mode: 1}, allTSPlotData[x].aValuePlotArray, allTSPlotData[x].tagTablefor1, allTSPlotData[x].indexArray, place1);
   	}
 
 		this.makeTimelineChart({mode: 1, spanGaps: false}, tlData, tagTable2, tlEvents);
@@ -614,5 +619,10 @@ function pointWithin(px, py, rlft, rtop, rrgt, rbtm) {
     return px >= rlft && px <= rrgt && py >= rtop && py <= rbtm;
 }
 
-export {uPlotter};
+function reportElement(id, elem) {
+	console.log("id= " + id + " element= " + elem);
+	placeTable[id] = elem;
+}
+
+export {uPlotter, reportElement};
 	

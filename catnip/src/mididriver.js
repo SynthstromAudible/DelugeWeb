@@ -9,6 +9,8 @@ let delugeIn = null;
 let delugeOut = null;
 
 let sysExCallback;
+let textref;
+
 export var sysExRunning = false;
 
 function setstatus(text) {
@@ -139,10 +141,12 @@ window.addEventListener('load', function() {
     setstatus("webmidi unavail, check browser permissions");
   }
 
+/*
   $("#getDebugButton").on("click", getDebug);
   $("#stopDebugButton").on("click", stopDebug);
   $("#chooseIn").on("change", onChangeIn);
   $("#chooseOut").on("change", onChangeOut);
+  */
   return;
 });
 
@@ -160,6 +164,11 @@ function handleData(msg) {
 
 let lineBuff = [];
 let lineMax = 100;
+
+function clearLog() {
+	lineBuff = [];
+	if (textref !== undefined) textref.value = "";
+}
 function decode(data) {
   if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
     console.log("foreign sysex?");
@@ -182,14 +191,15 @@ function decode(data) {
     }
   	lineBuff = chunks.join("\n");
 		let html = chunks.join("<br>");
-    $('#debugOutput').empty();
-    $('#debugOutput').append(html);
+		
+		if (textref !== undefined) {
+			textref.value = html;
+		}
+   // $('#debugOutput').empty();
+   // $('#debugOutput').append(html);
   }
 }
 
-
-export function setSysExCallback(callback)
-{var theInterval;
 // Not used yet.
 function setRefresh() {
   if (theInterval != null) {
@@ -200,5 +210,13 @@ function setRefresh() {
   //theInterval = setInterval(function() { renderBlock; }, 100);
 }
 
+function setSysExCallback(callback) {
 	sysExCallback = callback;
 }
+
+function informRef(ref)
+{
+	textref = ref;
+}
+
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef};

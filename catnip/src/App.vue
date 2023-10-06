@@ -1,85 +1,127 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from './CatnipApp.vue'
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/uPlot.min.css">
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
+    <title>View Events</title>
   </header>
 
-  <RouterView />
+    <script type="module" src="/src/viewEvents.js"></script>
+ <div id="app"></div>
+
+<input id='opener' name="file" type="file" accept=".txt,.log" />
+Scale:
+<select id = "scale" >  
+<option selected='true'>seconds</option>  
+<option>milliseconds</option>  
+<option>microseconds</option>
+</select>&nbsp;
+&nbsp;
+Graph&nbsp;Height:
+<select id = "plotH" >  
+<option>50</option>
+<option>80</option>
+<option selected='true'>100</option>
+<option>150</option>
+<option>200</option>
+<option>250</option>
+<option>300</option>
+<option>400</option>
+<option>500</option>
+</select>&nbsp;pixels.
+<br/>Midi:
+     in: <select id="chooseIn"><option label="(none)" value="" id="noneInput"/></select>
+     out: <select id="chooseOut"><option label="(none)" value="" id="noneOutput"/></select>
+     &nbsp;
+     <button type="button" id="getDebugButton">Start SysEx</button>
+     &nbsp;
+     <button type="button" id="stopDebugButton">Stop SysEx</button>
+     &nbsp;
+		 <button type="button" id="clearbut">Clear</button>
+<p/>
+		 <div class="timeline" id="plot">
+		</div>
+		<hr/>
+		<div class="uplot" id="uplot">
+			
+		</div>
+		<div class="uplotl" id="uplotl">
+			
+		</div>
+		<hr/>
+				 <div class='status' id="midiStatus">inactive</div>
+     <div id="debugOutput" class="outbox">
+     </div>
+  </body>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+canvas {
+  border:1px solid #000000;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.outbox {
+  border:1px solid #000000;
+  overflow-y: scroll;
+
+  display: flex;
+  flex-direction: column-reverse;
+
+  height: 160px;
+  margin-bottom: 10px;
+  margin-right: 30px;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+div.timeline {
+	position: relative;
+	background-color:#fffffc;
+	left:		64px;
+	// height: 512px;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+div.eventItem {
+	position: absolute;
+	height: 12px;
+	background-color:#202020;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+
+div.line {
+	
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+div.linelabel {
+	position: absolute;
+	left: -60px;
+	font-size:12px;
 }
 
-nav a:first-of-type {
-  border: 0;
+.overlay{
+  position:absolute;
+  width:64px;
+  background-color:rgba(0, 0, 0, 0.0);
+  pointer-events: none;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+.linelabel {
+  text-align:left;
+  background-color:black;
+  font-size:10px;
+  color:white;
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+.stripe {
+	position:absolute;
+	background-color:#f8ffff;
+}
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.gridline {
+	  position:absolute;
+		background-color:#e0e0e0;
 }
 </style>
