@@ -1,6 +1,5 @@
 <script setup>
 
-import {reportElement} from "./uPlotter.js";
 import {defineProps, ref, onMounted} from 'vue';
 
 const props = defineProps({useId: String});
@@ -10,7 +9,6 @@ let plotElement;
  onMounted(() => {
         plotElement = plotelm.value;
         console.log(plotElement);
-        reportElement(props.useId, plotElement);
 })
 
 </script>

@@ -3,20 +3,21 @@
 import $ from'jquery';
 import {setSysExCallback, sysExRunning, clearLog} from "./mididriver.js";
 import uPlot from "./js/uPlot.esm.js";
-import {uPlotter} from "./uPlotter.js";
+import {ViewProjector, clearPlots} from "./ViewProjector.js";
 import {jPlot} from "./jPlot.js";
-import {EventScanner} from "./EventScanner.js";
+import {EventCollector} from "./EventCollector.js";
 
 //import { createApp } from 'vue';
 //import App from './App.vue';
 
+// We must also update the 'selected' attribute in the dropdown element in the html file.
 let ViewParams = {
 	timeScale: 400000000,
 	plotHeight: 100,
 };
 
 var activeScanner;
-// We must also update the 'selected' attribute in the dropdown element in the html file.
+
 
 // Test data:
 let rttcapture =
@@ -72,15 +73,15 @@ function openLocal(evt) {
 
 function setEventData(fileName, text) {
   //$("#plot").empty();
-  let es = new EventScanner();
+  let es = new EventCollector();
   activeScanner = es;
   activeScanner.baseTime = 0;
   activeScanner.lastBaseTime = 0;
   es.readLines(text);
   es.reflowTime();
   //es.report();
-  let up = new uPlotter(es);
-  up.plotEverything();
+  let up = new ViewProjector(es);
+  up.symbolize();
 
 //	let jp = new jPlot(activeView);
 //  jp.render();
@@ -88,9 +89,10 @@ function setEventData(fileName, text) {
 
 
 function clearActiveScanner(event) {
-  let es = new EventScanner();
+  let es = new EventCollector();
   activeScanner = es;
   clearLog();
+  clearPlots();
 }
 
 function changeScale(event)
@@ -130,11 +132,11 @@ function renderBlock()
 		  activeScanner.readLines(completes);
   		activeScanner.reflowTime();
 /*
-  		let tsData = activeView.uPlotter();
+  		let tsData = activeView.ViewProjector();
   		activeScanner.makeChart({mode: 1}, tsData);
 */
-  	let up = new uPlotter(activeScanner);
-  	up.plotEverything();
+  	let up = new ViewProjector(activeScanner);
+  	up.symbolize();
 	}
 }
 
@@ -157,13 +159,7 @@ function sysExCallback(text) {
 }
 
 function startup () {
-	
-	/*
-$("#clearbut").on('click', clearActiveScanner);
-$("#opener").on('change', openLocal);
-$("#scale").on('change', changeScale);
-$("#plotH").on('change', changePlotHeight);
-*/
+
 setSysExCallback(sysExCallback); setRefresh();
 setEventData("test", ""); // no quotes arounf rttcapture, simplecap, or ""
 

@@ -63,7 +63,7 @@ class TagInfo {
 		}
 }
 
-class EventScanner
+class EventCollector
 {
   constructor() {
 
@@ -333,5 +333,5 @@ class EventScanner
 } // End class
 
 
-export {TagInfo, EventScanner};
+export {TagInfo, EventCollector};
 

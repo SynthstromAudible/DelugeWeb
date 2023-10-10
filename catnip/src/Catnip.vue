@@ -1,8 +1,9 @@
  <script setup>
   import {startup, openLocal, clearActiveScanner, changeScale, changePlotHeight} from "./viewEvents.js";
   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
-  import PlotComponent from "./PlotComponent.vue";
   import {onMounted, ref} from 'vue';
+  //import SeriesViewComponent from "./SeriesViewComponent.vue";
+  import ViewList from "./ViewList.vue";
 
   let midiLog = ref("");
   
@@ -47,15 +48,13 @@ Graph&nbsp;Height:
 		 <button type="button" id="clearbut" @click="clearActiveScanner">Clear</button>
 <p/>
 </div>
+
+<p/>
+
+<ViewList />
+
 <p/>
 <div id='graphs' class='graphs'>
-<div id='valuecomps'>
-<PlotComponent useId='valuePlots' />
-</div>
-
-<div id='timelinecomp'>
-<PlotComponent useId='timelinePlot'/>
-</div>
 </div>
 <hr/>
 <p/>
