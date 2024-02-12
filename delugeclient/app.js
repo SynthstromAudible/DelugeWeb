@@ -153,7 +153,7 @@ window.addEventListener('load', function() {
 
 
 function pingTest() {
-    delugeOut.send([0xf0, 0x7d, 0x00, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x00, 0xf7]);
 }
 
 function oldCodes() {
@@ -176,24 +176,25 @@ function oldCodes() {
   }
 }
 
+
 function getOled() {
-    delugeOut.send([0xf0, 0x7d, 0x02, 0x00, 0x01, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x02, 0x00, 0x01, 0xf7]);
 }
 
 function get7seg() {
-    delugeOut.send([0xf0, 0x7d, 0x02, 0x01, 0x00, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x02, 0x01, 0x00, 0xf7]);
 }
 
 function getDisplay(force) {
-    delugeOut.send([0xf0, 0x7d, 0x02, 0x00, force ? 0x03 : 0x02, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x02, 0x00, force ? 0x03 : 0x02, 0xf7]);
 }
 
 function getDebug() {
-    delugeOut.send([0xf0, 0x7d, 0x03, 0x00, 0x01, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x03, 0x00, 0x01, 0xf7]);
 }
 
 function flipscreen() {
-    delugeOut.send([0xf0, 0x7d, 0x02, 0x00, 0x04, 0xf7]);
+    delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x02, 0x00, 0x04, 0xf7]);
 }
 
 function setRefresh() {
@@ -219,37 +220,47 @@ function handleData(msg) {
 }
 
 /** @param {Uint8Array} data */
+
+// JFF changed this to only respond to queries to the Synthstrom SysEx ID, which is 3 characters
+// longer than the 0xf0, 0x7d sequence we were used to doing. Instead of inserting numerous additions
+// I decided to just add 3 to all the magic offsets I see
 function decode(data) {
-  if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
+//  if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {	
+  if (data.length < 6 || data[0] != 0xf0) return;
+	if (data[1] !== 0x00 || data[2] !== 0x21 || data[3] !== 0x7b || data[4] !== 0x01) {
     console.log("foreign sysex?")
     return;
   }
 
-  if (data.length >= 5 && data[2] == 0x02 && data[3] == 0x40) {
-    // console.log("found OLED!")
+//  if (data.length >= 5 && data[2] == 0x02 && data[3] == 0x40) {
 
-    if (data[4] == 1) {
+  if (data.length >= 8 && data[5] == 0x02 && data[6] == 0x40) {
+    // console.log("found OLED!")
+//    if (data[4] == 1) {
+    if (data[7] == 1) {
       drawOled(data)
-    } else if (data[4] == 2) {
+//    } else if (data[4] == 2) {
+    } else if (data[7] == 2) {
       drawOledDelta(data)
     } else {
       console.log("DO NOT DO THAT")
     }
-
-  } else if (data.length >= 5 && data[2] == 0x02 && data[3] == 0x41) {
+// } else if (data.length >= 5 && data[2] == 0x02 && data[3] == 0x41) {
+  } else if (data.length >= 8 && data[5] == 0x02 && data[6] == 0x41) {
     console.log("found 7seg!")
-
-    if (data[4] != 0) {
+//     if (data[4] != 0) {
+    if (data[7] != 0) {
       console.log("DO NOT DO THAT")
       return;
     }
-
-    draw7Seg(data.subarray(7,11), data[6])
-  } else if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
+//     draw7Seg(data.subarray(7,11), data[6])
+    draw7Seg(data.subarray(10,14), data[9])
+//} else if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
+  } else if (data.length >= 8 && data[5] == 0x03 && data[6] == 0x40) {
     console.log("found debug!")
     // data[4]: unused category
-
-    let msgbuf = data.subarray(5, data.length-1);
+//     let msgbuf = data.subarray(5, data.length-1);
+    let msgbuf = data.subarray(8, data.length-1);
     let message = new TextDecoder().decode(msgbuf)
     let chunks = message.split('\n')
     for (let i = 0; i < chunks.length; i++) {
@@ -264,7 +275,8 @@ function decode(data) {
 let oledData = new Uint8Array(6*128);
 
 function drawOled(data) {
-  let packed = data.subarray(6,data.length-1)
+//  let packed = data.subarray(6,data.length-1)
+  let packed = data.subarray(9,data.length-1)
 
   let unpacked = lib.wrap_array(lib.fn.unpack_7to8_rle, packed)
   console.log(`reset ${unpacked.length} as ${packed.length}`);
@@ -276,11 +288,14 @@ function drawOled(data) {
 }
 
 function drawOledDelta(data) {
-
-  let first = data[5];
-  let len = data[6];
-  let packed = data.subarray(7,data.length-1)
+// let first = data[5];
+  let first = data[8];
+//   let len = data[6];
+  let len = data[9];
+//   let packed = data.subarray(7,data.length-1)
+  let packed = data.subarray(10,data.length-1)
   //console.log("packed size "+ packed.length);
+
 
   let unpacked = lib.wrap_array(lib.fn.unpack_7to8_rle, packed)
   console.log(`first ${first}, len ${len}, delta size ${unpacked.length} as ${packed.length}`);
