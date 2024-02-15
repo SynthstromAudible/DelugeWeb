@@ -1,9 +1,5 @@
 "use strict";
 
-//import { createApp } from 'vue';
-//import App from './App.vue';
-
-
 let regex = /[0-9A-Fa-f]{8}/g;
 function parseHex(string)
 {

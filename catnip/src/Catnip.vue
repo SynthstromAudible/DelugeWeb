@@ -2,7 +2,6 @@
   import {startup, openLocal, clearActiveScanner, changeScale, changePlotHeight} from "./viewEvents.js";
   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
   import {onMounted, ref} from 'vue';
-  //import SeriesViewComponent from "./SeriesViewComponent.vue";
   import ViewList from "./ViewList.vue";
 
   let midiLog = ref("");

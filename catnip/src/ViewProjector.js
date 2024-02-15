@@ -28,19 +28,6 @@ let plotInfoDir = [];
 
 let plotDataRef = shallowRef(plotInfoDir);
 let plotInfos = [];
-		
-	let colorTab = [
-	 "red",
-	 "green",
-	 "blue",
-	 "yellow",
-	 "black",
-	 "orange",
-	 "cyan",
-	 "gray"
-	];
-	
-
 
 class ViewProjector {
 
