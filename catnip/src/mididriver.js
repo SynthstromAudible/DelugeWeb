@@ -124,12 +124,12 @@ function onMIDIFailure(msg) {
 }
 
 function getDebug() {
-    delugeOut.send([0xf0, 0x7d, 0x03, 0x00, 0x01, 0xf7]);
+    delugeOut.send([0xF0, 0x00, 0x21, 0x7B, 0x01, 0x03, 0x00, 0x01, 0xf7]);
     sysExRunning = true;
 }
 
 function stopDebug() {
-    delugeOut.send([0xf0, 0x7d, 0x03, 0x00, 0x00, 0xf7]);
+    delugeOut.send([0xF0, 0x00, 0x21, 0x7B, 0x01, 0x03, 0x00, 0x00, 0xf7]);
     sysExRunning = false;
 }
 
@@ -170,13 +170,23 @@ function clearLog() {
 	if (textref !== undefined) textref.value = "";
 }
 function decode(data) {
-  if (data.length < 3 || data[0] != 0xf0 || data[1] != 0x7d) {
+	let hasDelugeID = false;
+	let payloadOffset = 2;
+
+	if (data.length > 6) {
+				 hasDelugeID = data[1] == 0x00 && data[2] == 0x21 && data[3] == 0x21 && data[4] == 0x21;
+				 if (hasDelgueID) payloadOffset = 5;
+	}
+	if (data[1] == 0x7d) hasDelugeID = true;
+  if (data.length < (payloadOffset + 1) || data[0] != 0xf0 || !hasDelugeID) {
     console.log("foreign sysex?");
 //  console.log(data);
     return;
   }
-    if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
-    let msgbuf = data.subarray(5, data.length-1);
+  //    if (data.length >= 5 && data[2] == 0x03 && data[3] == 0x40) {
+    if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x03 && data[payloadOffset + 1] == 0x40) {
+  //     let msgbuf = data.subarray(5, data.length-1);
+    let msgbuf = data.subarray(payloadOffset + 3, data.length-1);
     let message = new TextDecoder().decode(msgbuf);
     if (sysExCallback !== undefined) {
       	if (sysExRunning) sysExCallback(message);

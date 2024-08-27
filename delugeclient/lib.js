@@ -16,7 +16,7 @@ export function loadlib(cb) {
       obj.inbuffer.set(src)
       let len = fn(obj.outbuffer.byteOffset, obj.outbuffer.byteLength, obj.inbuffer.byteOffset,src.length);
       if (len < 0) {
-        throw new Error("failed at call" + fn + ": " + len);
+  //      throw new Error("failed at call" + fn + ": " + len);
       }
       return new Uint8Array(obj.outbuffer.subarray(0,len));
     }
