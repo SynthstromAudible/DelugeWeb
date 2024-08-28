@@ -144,9 +144,10 @@ window.addEventListener('load', function() {
 /*
   $("#getDebugButton").on("click", getDebug);
   $("#stopDebugButton").on("click", stopDebug);
+    */
   $("#chooseIn").on("change", onChangeIn);
   $("#chooseOut").on("change", onChangeOut);
-  */
+
   return;
 });
 
@@ -174,8 +175,8 @@ function decode(data) {
 	let payloadOffset = 2;
 
 	if (data.length > 6) {
-				 hasDelugeID = data[1] == 0x00 && data[2] == 0x21 && data[3] == 0x21 && data[4] == 0x21;
-				 if (hasDelgueID) payloadOffset = 5;
+				 hasDelugeID = data[1] == 0x00 && data[2] == 0x21 && data[3] == 0x7B && data[4] == 0x01;
+				 if (hasDelugeID) payloadOffset = 5;
 	}
 	if (data[1] == 0x7d) hasDelugeID = true;
   if (data.length < (payloadOffset + 1) || data[0] != 0xf0 || !hasDelugeID) {
