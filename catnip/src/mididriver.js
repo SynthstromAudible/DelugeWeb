@@ -144,10 +144,10 @@ window.addEventListener('load', function() {
 /*
   $("#getDebugButton").on("click", getDebug);
   $("#stopDebugButton").on("click", stopDebug);
-    */
+  
   $("#chooseIn").on("change", onChangeIn);
   $("#chooseOut").on("change", onChangeOut);
-
+*/
   return;
 });
 

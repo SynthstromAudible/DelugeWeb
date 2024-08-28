@@ -37,8 +37,8 @@ Graph&nbsp;Height:
 </select>&nbsp;pixels.
 
 <br/>Midi:
-     in: <select id="chooseIn"><option label="(none)" value="" id="noneInput" @change="onChangeIn"/></select>
-     out: <select id="chooseOut"><option label="(none)" value="" id="noneOutput" @change="onChangeOut"/></select>
+     in: <select id="chooseIn"  @change="onChangeIn"><option label="(none)" value="" id="noneInput"/></select>
+     out: <select id="chooseOut" @change="onChangeOut"><option label="(none)" value="" id="noneOutput"/></select>
      &nbsp;
      <button type="button" id="getDebugButton" @click="getDebug">Start SysEx</button>
      &nbsp;
