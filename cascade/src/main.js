@@ -1,0 +1,6 @@
+import './assets/main.css'
+import './assets/uPlot.min.css'
+import { createApp } from 'vue'
+import App from './Cascade.vue'
+
+createApp(App).mount('#app')
