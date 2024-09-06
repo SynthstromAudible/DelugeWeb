@@ -1,5 +1,5 @@
  <script setup>
-  import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
+  import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef, startBlocks} from "./mididriver.js";
   import {onMounted, ref} from 'vue';
 
   let midiLog = ref("");
@@ -8,6 +8,7 @@
 			// startup();
 			informRef(midiLog);
 	});
+
 
  </script>
  
@@ -24,7 +25,7 @@
      &nbsp;
      <button type="button" id="stopDebugButton" @click="stopDebug">Stop SysEx</button>
      &nbsp;
-		 <button type="button" id="clearbut" @click="clearActiveScanner">Clear</button>
+     <button type="button" id="getBlockButton" @click="startBlocks">Get Block</button>
 <p/>
 </div>
 

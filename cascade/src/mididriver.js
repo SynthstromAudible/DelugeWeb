@@ -133,6 +133,54 @@ function stopDebug() {
     sysExRunning = false;
 }
 
+// https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
+function mergeUint8Arrays(...arrays) {
+  const totalSize = arrays.reduce((acc, e) => acc + e.length, 0);
+  const merged = new Uint8Array(totalSize);
+
+  arrays.forEach((array, i, arrays) => {
+    const offset = arrays.slice(0, i).reduce((acc, e) => acc + e.length, 0);
+    merged.set(array, offset);
+  });
+
+  return merged;
+}
+
+
+
+function getBlock() {
+	   delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, 0x06, 0xf7]); 
+}
+
+
+function getDirInfo(offset, maxLines, path) {
+		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04]);
+		 let msgOut = {"dir": {}};
+		 let params = msgOut.dir;
+		 params.offset = 0;
+		 params.lines = 2;
+		 params.path = path;
+	   let cmdLine = JSON.stringify(msgOut);
+	   console.log(cmdLine);
+		 let suffix = new Uint8Array([0xf7]);
+		 const textEncoder = new TextEncoder();
+		 const cmdBytes = textEncoder.encode(cmdLine);
+		 let msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
+	   delugeOut.send(msg);
+	   console.log(msg);
+}
+
+let N = 10;
+let blockCtr = 0;
+let startT = 0;
+let endT = 0;
+
+function startBlocks() {
+	blockCtr = N;
+	startT = Date.now();
+	//getBlock();
+	getDirInfo(0, 100, "/TEST");
+}
 
 window.addEventListener('load', function() {
   if (navigator.requestMIDIAccess) {
@@ -208,6 +256,10 @@ function decode(data) {
 		}
    // $('#debugOutput').empty();
    // $('#debugOutput').append(html);
+  } else if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x05) {
+  	  let textPart = data.subarray(payloadOffset + 1, data.length - 1);
+  	  let dec= new TextDecoder().decode(textPart);
+  		console.log("Block: " + dec + "\n");
   }
 }
 
@@ -230,4 +282,4 @@ function informRef(ref)
 	textref = ref;
 }
 
-export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef};
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, startBlocks};
