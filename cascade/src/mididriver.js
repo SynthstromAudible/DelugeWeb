@@ -9,6 +9,7 @@ let delugeIn = null;
 let delugeOut = null;
 
 let sysExCallback;
+let jsonCallback;
 let textref;
 
 export var sysExRunning = false;
@@ -153,21 +154,27 @@ function getBlock() {
 }
 
 
-function getDirInfo(offset, maxLines, path) {
+function sendJsonRequest(cmd, body, aux) {
 		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04]);
-		 let msgOut = {"dir": {}};
-		 let params = msgOut.dir;
-		 params.offset = 0;
-		 params.lines = 2;
-		 params.path = path;
+		 let msgOut = {}
+		 msgOut[cmd] = body;
 	   let cmdLine = JSON.stringify(msgOut);
-	   console.log(cmdLine);
+
+	   if (aux === undefined) aux = new Uint8Array([]);
 		 let suffix = new Uint8Array([0xf7]);
 		 const textEncoder = new TextEncoder();
 		 const cmdBytes = textEncoder.encode(cmdLine);
-		 let msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
+		 let msg = mergeUint8Arrays(prefix, cmdBytes, aux, suffix);
 	   delugeOut.send(msg);
-	   console.log(msg);
+}
+
+function getDirInfo(offset, maxLines, path) {
+		 let params = {};
+		 params.offset = 0;
+		 params.lines = maxLines;
+		 params.path = path;
+
+		 sendJsonRequest("dir", params)
 }
 
 let N = 10;
@@ -179,7 +186,7 @@ function startBlocks() {
 	blockCtr = N;
 	startT = Date.now();
 	//getBlock();
-	getDirInfo(0, 100, "/TEST");
+	getDirInfo(0, 25, "/TEST");
 }
 
 window.addEventListener('load', function() {
@@ -256,10 +263,11 @@ function decode(data) {
 		}
    // $('#debugOutput').empty();
    // $('#debugOutput').append(html);
+   
+   
+   
   } else if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x05) {
-  	  let textPart = data.subarray(payloadOffset + 1, data.length - 1);
-  	  let dec= new TextDecoder().decode(textPart);
-  		console.log("Block: " + dec + "\n");
+  		if (jsonCallback !== undefined) jsonCallback(data, payloadOffset);
   }
 }
 
@@ -277,9 +285,13 @@ function setSysExCallback(callback) {
 	sysExCallback = callback;
 }
 
+function setJsonCallback(callback) {
+	jsonCallback = callback;
+}
+
 function informRef(ref)
 {
 	textref = ref;
 }
 
-export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, startBlocks};
+export {setSysExCallback, setJsonCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, sendJsonRequest, startBlocks};

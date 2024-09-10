@@ -1,12 +1,14 @@
  <script setup>
   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef, startBlocks} from "./mididriver.js";
   import {onMounted, ref} from 'vue';
-
+  import {setupJSON} from "./JsonReplyHandler.js";
+	import DirView from "./DirView.vue";
   let midiLog = ref("");
   
    onMounted(() => {
 			// startup();
 			informRef(midiLog);
+			setupJSON();
 	});
 
 
@@ -25,11 +27,14 @@
      &nbsp;
      <button type="button" id="stopDebugButton" @click="stopDebug">Stop SysEx</button>
      &nbsp;
-     <button type="button" id="getBlockButton" @click="startBlocks">Get Block</button>
+     <button type="button" id="getBlockButton" @click="startBlocks">Get Dir List</button>
 <p/>
 </div>
 
 <p/>
+
+<DirView/>
+
 
 <hr/>
 <p/>
@@ -37,6 +42,7 @@
 <p/>
 <div id="debugOutput" class="outbox"  v-html="midiLog">
  </div>
+ 
 </template>
 
 <style>
