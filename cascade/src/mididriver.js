@@ -1,6 +1,5 @@
 import $ from'jquery';
-import {loadlib} from "./lib.js";
-
+import {handleJsonCB} from "./JsonReplyHandler.js";
 /** @type {MIDIAccess} */
 let midi = null;
 /** @type {MIDIInput} */
@@ -10,6 +9,7 @@ let delugeOut = null;
 
 let sysExCallback;
 let jsonCallback;
+
 let textref;
 
 export var sysExRunning = false;
@@ -168,26 +168,13 @@ function sendJsonRequest(cmd, body, aux) {
 	   delugeOut.send(msg);
 }
 
-function getDirInfo(offset, maxLines, path) {
-		 let params = {};
-		 params.offset = 0;
-		 params.lines = maxLines;
-		 params.path = path;
-
-		 sendJsonRequest("dir", params)
-}
 
 let N = 10;
 let blockCtr = 0;
 let startT = 0;
 let endT = 0;
 
-function startBlocks() {
-	blockCtr = N;
-	startT = Date.now();
-	//getBlock();
-	getDirInfo(0, 25, "/TEST");
-}
+
 
 window.addEventListener('load', function() {
   if (navigator.requestMIDIAccess) {
@@ -264,10 +251,9 @@ function decode(data) {
    // $('#debugOutput').empty();
    // $('#debugOutput').append(html);
    
-   
-   
+ 
   } else if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x05) {
-  		if (jsonCallback !== undefined) jsonCallback(data, payloadOffset);
+  		 handleJsonCB(data, payloadOffset);
   }
 }
 
@@ -285,13 +271,10 @@ function setSysExCallback(callback) {
 	sysExCallback = callback;
 }
 
-function setJsonCallback(callback) {
-	jsonCallback = callback;
-}
 
 function informRef(ref)
 {
 	textref = ref;
 }
 
-export {setSysExCallback, setJsonCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, sendJsonRequest, startBlocks};
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, sendJsonRequest};

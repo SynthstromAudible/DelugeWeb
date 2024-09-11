@@ -1,14 +1,13 @@
  <script setup>
-  import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef, startBlocks} from "./mididriver.js";
+  import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
   import {onMounted, ref} from 'vue';
-  import {setupJSON} from "./JsonReplyHandler.js";
 	import DirView from "./DirView.vue";
+	import MemDump from "./MemDump.vue";
   let midiLog = ref("");
   
    onMounted(() => {
 			// startup();
 			informRef(midiLog);
-			setupJSON();
 	});
 
 
@@ -26,14 +25,13 @@
      <button type="button" id="getDebugButton" @click="getDebug">Start SysEx</button>
      &nbsp;
      <button type="button" id="stopDebugButton" @click="stopDebug">Stop SysEx</button>
-     &nbsp;
-     <button type="button" id="getBlockButton" @click="startBlocks">Get Dir List</button>
+
 <p/>
 </div>
 
 <p/>
 
-<DirView/>
+<MemDump/>
 
 
 <hr/>
