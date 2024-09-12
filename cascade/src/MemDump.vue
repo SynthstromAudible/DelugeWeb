@@ -1,6 +1,6 @@
  <script setup>
   import {ref} from 'vue';
-  import {registerSysexCallback, GetAttachedUint8Array} from "./JsonReplyHandler.js";
+  import {registerSysexCallback, GetAttachedUint8Array, pack8bitTo7bit} from "./JsonReplyHandler.js";
   import {sendJsonRequest} from "./mididriver.js";
 
   let dirList = ref([]);
@@ -33,13 +33,26 @@
 		 sendJsonRequest("dump", params);
 	}
 
+ 	function upload() {
+ 		 let params = {};
+		 params.addr = 0;
+		 params.size = 512;
+		 let upbuf = new Uint8Array(512);
+		 for (let i = 0; i < upbuf.length; ++i) {
+		 	upbuf[i] = i;
+		 }
+	 let packed = pack8bitTo7bit(upbuf, 0, 512);
+	 sendJsonRequest("put", params, packed);
+	 console.log("Request sent");
+ 	}
+ 
  </script>
  
 <template>
 <hr/><br/>
      &nbsp;
      <button type="button" id="getDumpButton" @click="getDump">Dump</button><br>
-
+		 <button type="button" id="uploadButton" @click="upload">Upload</button><br>
  <hr/> </template>
  
  <style>

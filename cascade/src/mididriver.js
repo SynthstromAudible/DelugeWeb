@@ -159,13 +159,18 @@ function sendJsonRequest(cmd, body, aux) {
 		 let msgOut = {}
 		 msgOut[cmd] = body;
 	   let cmdLine = JSON.stringify(msgOut);
-
-	   if (aux === undefined) aux = new Uint8Array([]);
 		 let suffix = new Uint8Array([0xf7]);
 		 const textEncoder = new TextEncoder();
 		 const cmdBytes = textEncoder.encode(cmdLine);
-		 let msg = mergeUint8Arrays(prefix, cmdBytes, aux, suffix);
-	   delugeOut.send(msg);
+
+		 let msg;
+		 if (aux !== undefined) {
+		 	 let sep = new Uint8Array([0x00]);
+		 	 msg = mergeUint8Arrays(prefix, cmdBytes, sep, aux, suffix);
+		} else {
+			 msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
+		}
+	  delugeOut.send(msg);
 }
 
 
