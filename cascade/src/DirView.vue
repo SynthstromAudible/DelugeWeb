@@ -37,8 +37,7 @@
 		}
 	}
 	
-	registerSysexCallback("dirlist", dircallback);
-	
+	registerSysexCallback("^dir", dircallback);
 	
 	function getDirInfo() {
 		 let params = {};

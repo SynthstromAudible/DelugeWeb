@@ -7,31 +7,65 @@
   const blkSize = 20;
 	let dirpath = ref("/KITS");
 	
+	let msgCtr = 1;
+	
 	let startT;
 	let endT;
 	let startR;
 	let endR;
 	let working = [];
 	
-	function dumpCallback(verb, object, data, payoff, zeroX) {
-		console.log("*** Dump callback");
+	function readCallback(verb, object, data, payoff, zeroX) {
+		console.log("*** Read callback");
 		let params = object[verb];
 		let attached = GetAttachedUint8Array(data, zeroX);
-		console.log(attached);
+		const decoder = new TextDecoder();
+		let str = decoder.decode(attached);
+		console.log(str);
+		
+		let clos = {};
+		clos.fid = params.fid;
+ 	  sendJsonRequest("close", clos);
+		
 	}
 	
-	registerSysexCallback("dumped", dumpCallback);
+	registerSysexCallback("^read", readCallback);
+
+	function openCallback(verb, object, data, payoff, zeroX) {
+		let resp = object[verb];
+		let params = {};
+		params.fid = resp.fid;
+		params.addr = 0;
+	  params.size = 512;
+	  if (resp.fid === undefined || resp.fid < 1) {
+	  	console.log("*** bad file open");
+	  	return;
+	  }
+	  sendJsonRequest("read", params);
+	}
+
+	registerSysexCallback("^open", openCallback);
 	
+	function dumpFile() {
+		let params = {};
+		params.path = '/SONGS/SONG001.XML';
+		params["r#"] = msgCtr++;
+
+		sendJsonRequest("open", params);
+	}
 	
+
 	function getDump() {
 		 let params = {};
 		 params.addr = 0x20000000;
 		 params.size = 256;
+		 params.fid = 0;
 		 working = [];
 		 dirList.value = [];
 
-		 sendJsonRequest("dump", params);
+		 sendJsonRequest("read", params);
 	}
+
 
  	function upload() {
  		 let params = {};
@@ -42,7 +76,7 @@
 		 	upbuf[i] = i;
 		 }
 	 let packed = pack8bitTo7bit(upbuf, 0, 512);
-	 sendJsonRequest("put", params, packed);
+	 sendJsonRequest("write", params, packed);
 	 console.log("Request sent");
  	}
  
@@ -51,7 +85,7 @@
 <template>
 <hr/><br/>
      &nbsp;
-     <button type="button" id="getDumpButton" @click="getDump">Dump</button><br>
+     <button type="button" id="getDumpButton" @click="dumpFile">Dump File</button><br>
 		 <button type="button" id="uploadButton" @click="upload">Upload</button><br>
  <hr/> </template>
  

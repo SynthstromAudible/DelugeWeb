@@ -33,7 +33,6 @@
 
 <MemDump/>
 
-
 <hr/>
 <p/>
 <div class='status' id="midiStatus">inactive</div>
