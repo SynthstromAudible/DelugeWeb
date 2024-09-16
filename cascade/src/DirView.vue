@@ -1,12 +1,11 @@
  <script setup>
   import {ref} from 'vue';
-  import {registerSysexCallback} from "./JsonReplyHandler.js";
-  import {sendJsonRequest} from "./mididriver.js";
+  import {sendJsonRequest} from "./JsonReplyHandler.js";
   import DirEntry from "./DirEntry.vue";
 
   let dirList = ref([]);
   const blkSize = 20;
-	let dirpath = ref("/KITS");
+	let dirpath = ref("/TEST");
 	
 	let startT;
 	let endT;
@@ -27,7 +26,7 @@
 		 			params.offset = working.length;
 					params.lines = blkSize;
 					params.path = dirpath.value;
-				  sendJsonRequest("dir", params);
+				  sendJsonRequest("dir", params, dircallback);
 				  startR = Date.now();
 		} else {
 		  dirList.value = working;
@@ -36,9 +35,7 @@
 			console.log(" dT: " + dT);
 		}
 	}
-	
-	registerSysexCallback("^dir", dircallback);
-	
+
 	function getDirInfo() {
 		 let params = {};
 		 params.offset = 0;
@@ -47,7 +44,7 @@
 		 working = [];
 		 dirList.value = [];
 
-		 sendJsonRequest("dir", params);
+		 sendJsonRequest("dir", params, dircallback);
 	}
 		
 

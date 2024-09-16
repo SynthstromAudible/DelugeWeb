@@ -6,7 +6,7 @@
   </script>
   
   <template>
-  <td>{{entry.name}}</td><td>{{entry.size}}</td>
+  <td>{{entry.name}}</td><td>{{entry.size}}</td><td>{{entry.attr}}</td>
   </template>
   
   

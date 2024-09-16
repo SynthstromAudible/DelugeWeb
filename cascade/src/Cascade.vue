@@ -32,6 +32,7 @@
 <p/>
 
 <MemDump/>
+<DirView/>
 
 <hr/>
 <p/>

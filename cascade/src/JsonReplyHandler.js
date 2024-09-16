@@ -1,24 +1,74 @@
-  let callbackDirectory = new Map();
+ import {delugeOut} from "./mididriver.js";
+ 
+let callbackDirectory = new Map();
+
+let callbackIndexArray = new Array(128);
+
 
   function handleJsonCB(data, payloadOffset) {
+  
   	  let zeroX = data.length - 1;
-  		for (let i = payloadOffset + 1; i < (data.length - 1); ++i)
+  	  let replyID = data[payloadOffset + 1];
+  		for (let i = payloadOffset + 2; i < (data.length - 2); ++i)
   			if (data[i] == 0) {
   					zeroX = i;
   					break;
   			}
-   	  let textPart = data.subarray(payloadOffset + 1, zeroX);
-  	  let dec= new TextDecoder().decode(textPart);
+   	  let textPart = data.subarray(payloadOffset + 2, zeroX);
+  	  let dec = new TextDecoder().decode(textPart);
   	  let js = JSON.parse(dec);
-  	  for (const verb in js) {
+  	  let verb;
+ 
+  	  for (const v in js) {
+  	  	verb = v;
+  	  	break;
+  	  }
+
+  	  let callee = undefined;
+
+  	  if (replyID === 0) {
   	  	if (callbackDirectory.has(verb)) {
-  	  		let callee = callbackDirectory.get(verb);
-  	  		if (callee !== undefined) {
-  	  			callee(verb, js, data, payloadOffset, zeroX);
-  	  		}
+  	  		callee = callbackDirectory.get(verb);
   	  	}
+  	  } else
+  	     if (callbackIndexArray[replyID] !== undefined) {
+  	  	  callee = callbackIndexArray[replyID];
+  	  }
+
+  	  if (callee !== undefined) {
+  	  		callee(verb, js, data, payloadOffset, zeroX);
+  	  		callbackIndexArray[replyID] = undefined;
+  	  } else {
+  	  	console.log("*** undefined callback for Json msg: " + verb + " " + js);
   	  }
 }
+
+let msgSeqNumber = 1; // The "next" msg sequence # to send.
+
+function sendJsonRequest(cmd, body, callback, aux) {
+		 let seqNumberSent = msgSeqNumber;
+		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, msgSeqNumber]);
+		 msgSeqNumber++;
+		 if (msgSeqNumber >= 128) msgSeqNumber = 1;
+		 let msgOut = {}
+		 msgOut[cmd] = body;
+	   let cmdLine = JSON.stringify(msgOut);
+		 let suffix = new Uint8Array([0xf7]);
+		 const textEncoder = new TextEncoder();
+		 const cmdBytes = textEncoder.encode(cmdLine);
+
+		 let msg;
+		 if (aux !== undefined) {
+		 	 let sep = new Uint8Array([0x00]);
+		 	 msg = mergeUint8Arrays(prefix, cmdBytes, sep, aux, suffix);
+		} else {
+			 msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
+		}
+		callbackIndexArray[seqNumberSent] = callback;
+	  delugeOut.send(msg);
+	  return seqNumberSent;
+}
+
 
 // https://www.codeconvert.ai/c-to-javascript-converter
 function pack8bitTo7bit(src, srcOffset, srcLen) {
@@ -94,10 +144,21 @@ function GetAttachedUint8Array(data, zeroX) {
 		let res = unpack_7bit_to_8bit(binData, binLen, data, zeroX + 1, attLen);
 		return binData;
 }
-  
-function registerSysexCallback(name, callback) {
-	callbackDirectory.set(name, callback);
+
+// https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
+function mergeUint8Arrays(...arrays) {
+  const totalSize = arrays.reduce((acc, e) => acc + e.length, 0);
+  const merged = new Uint8Array(totalSize);
+
+  arrays.forEach((array, i, arrays) => {
+    const offset = arrays.slice(0, i).reduce((acc, e) => acc + e.length, 0);
+    merged.set(array, offset);
+  });
+
+  return merged;
 }
 
 
-export {registerSysexCallback, handleJsonCB, GetAttachedUint8Array, pack8bitTo7bit};
+
+
+export {sendJsonRequest, handleJsonCB, GetAttachedUint8Array, pack8bitTo7bit};

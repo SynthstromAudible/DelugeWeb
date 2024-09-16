@@ -134,44 +134,12 @@ function stopDebug() {
     sysExRunning = false;
 }
 
-// https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
-function mergeUint8Arrays(...arrays) {
-  const totalSize = arrays.reduce((acc, e) => acc + e.length, 0);
-  const merged = new Uint8Array(totalSize);
-
-  arrays.forEach((array, i, arrays) => {
-    const offset = arrays.slice(0, i).reduce((acc, e) => acc + e.length, 0);
-    merged.set(array, offset);
-  });
-
-  return merged;
-}
-
-
 
 function getBlock() {
 	   delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, 0x06, 0xf7]); 
 }
 
 
-function sendJsonRequest(cmd, body, aux) {
-		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04]);
-		 let msgOut = {}
-		 msgOut[cmd] = body;
-	   let cmdLine = JSON.stringify(msgOut);
-		 let suffix = new Uint8Array([0xf7]);
-		 const textEncoder = new TextEncoder();
-		 const cmdBytes = textEncoder.encode(cmdLine);
-
-		 let msg;
-		 if (aux !== undefined) {
-		 	 let sep = new Uint8Array([0x00]);
-		 	 msg = mergeUint8Arrays(prefix, cmdBytes, sep, aux, suffix);
-		} else {
-			 msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
-		}
-	  delugeOut.send(msg);
-}
 
 
 let N = 10;
@@ -282,4 +250,4 @@ function informRef(ref)
 	textref = ref;
 }
 
-export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, sendJsonRequest};
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, delugeOut};

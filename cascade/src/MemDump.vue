@@ -1,7 +1,6 @@
  <script setup>
   import {ref} from 'vue';
-  import {registerSysexCallback, GetAttachedUint8Array, pack8bitTo7bit} from "./JsonReplyHandler.js";
-  import {sendJsonRequest} from "./mididriver.js";
+  import {sendJsonRequest, GetAttachedUint8Array, pack8bitTo7bit} from "./JsonReplyHandler.js";
 
   let dirList = ref([]);
   const blkSize = 20;
@@ -22,14 +21,13 @@
 		const decoder = new TextDecoder();
 		let str = decoder.decode(attached);
 		console.log(str);
-		
+
 		let clos = {};
 		clos.fid = params.fid;
- 	  sendJsonRequest("close", clos);
-		
+ 	  sendJsonRequest("close", clos, ()=>{});
+
 	}
 	
-	registerSysexCallback("^read", readCallback);
 
 	function openCallback(verb, object, data, payoff, zeroX) {
 		let resp = object[verb];
@@ -41,17 +39,16 @@
 	  	console.log("*** bad file open");
 	  	return;
 	  }
-	  sendJsonRequest("read", params);
+	  sendJsonRequest("read", params, readCallback);
 	}
 
-	registerSysexCallback("^open", openCallback);
 	
 	function dumpFile() {
 		let params = {};
 		params.path = '/SONGS/SONG001.XML';
 		params["r#"] = msgCtr++;
 
-		sendJsonRequest("open", params);
+		sendJsonRequest("open", params, openCallback);
 	}
 	
 
@@ -65,6 +62,11 @@
 
 		 sendJsonRequest("read", params);
 	}
+	
+	function writeCB(verb, js, data, payloadOffset, zeroX)
+	{
+	
+	}
 
 
  	function upload() {
@@ -76,7 +78,7 @@
 		 	upbuf[i] = i;
 		 }
 	 let packed = pack8bitTo7bit(upbuf, 0, 512);
-	 sendJsonRequest("write", params, packed);
+	 sendJsonRequest("write", params, writeCB, packed);
 	 console.log("Request sent");
  	}
  
