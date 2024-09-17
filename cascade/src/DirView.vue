@@ -6,70 +6,93 @@
   let dirList = ref([]);
   const blkSize = 20;
 	let dirpath = ref("/TEST");
+	let showHidden = ref(true);
 	
-	let startT;
-	let endT;
-	let startR;
-	let endR;
-	let working = [];
+	function getDirInfo() {
+		let working = [];
+		dirList.value = [];
+		let path = dirpath.value;
 	
-	function dircallback(verb, object, data, payoff) {
-		let chunk = object[verb];
-		working = working.concat(chunk);
-		endR = Date.now();
-		if (startR !== undefined) {
-			let dTR =  endR - startR;
-			console.log("reqDT: " + dTR);
-		}
-		if (chunk.length > 0) {
-					let params = {};
-		 			params.offset = working.length;
-					params.lines = blkSize;
-					params.path = dirpath.value;
-				  sendJsonRequest("dir", params, dircallback);
-				  startR = Date.now();
-		} else {
+    let dirCB = function(verb, object, data, payoff) {
+			let chunk = object[verb];
+			working = working.concat(chunk);
+		  if (chunk.length > 0) {
+	
+				  let params = {offset: working.length, lines: blkSize, path: path};
+				  sendJsonRequest("dir", params, dirCB);
+		  } else {
 		  dirList.value = working;
-			endT = Date.now();
-			let dT = endT - startT;
-			console.log(" dT: " + dT);
 		}
 	}
 
-	function getDirInfo() {
-		 let params = {};
+		 let params = {offset: 0, lines: blkSize, path: path};
 		 params.offset = 0;
 		 params.lines = blkSize;
 		 params.path = dirpath.value;
-		 working = [];
-		 dirList.value = [];
 
-		 sendJsonRequest("dir", params, dircallback);
+		 sendJsonRequest("dir", params, dirCB);
 	}
-		
-
- 
-function loadDir() {
-	startT = Date.now();
-	getDirInfo();
-}
 	
- </script>
- 
-<template>
-<hr/><br/>
-     &nbsp;
-     <button type="button" id="getDirButton" @click="loadDir">Get Dir List</button><br>
-<table>
-<tr><th>Name</th><th>Size</th></tr>
-<tr v-for="(item, index) in dirList" :key="item.name" >
-<DirEntry :entry="item"/>
-</tr>
-</table>
+let cdUpItem = {name: "..", attr: 0x10};
 
- <hr/>
- </template>
+ function changeDir(child)
+ {
+  let oldP = dirpath.value;
+  let name = child.name;
+  let newP;
+  if (name === "..") {
+  	let splat = oldP.split('/');
+  	if (splat.length > 0) splat.pop();
+  	if (splat.length > 0)
+  		newP = splat.join('/');
+  	 else newP = '/';
+  } else {
+  	newP = dirpath.value + '/' + name;
+  }
+  console.log(newP);
+  dirpath.value = newP;
+  getDirInfo();
+ }
  
- <style>
+function openPath(dEntry) {
+	let fullPath = dirpath.value + '/' +  dEntry.name;
+	console.log(fullPath);
+}
  
- </style>
+</script>
+
+<template>
+<button type="button" id="getDirButton" @click="getDirInfo">Get Dir List</button><p/>
+<input v-model="dirpath">&nbsp;
+<input type="checkbox" id="checkbox" label="Show hidden files" v-model="showHidden">
+<label for="checkbox">Show hidden</label><p/><br/>
+<table>
+<tr><th>[&nbsp;]</th><th>Name</th><th>Size</th></tr>
+<DirEntry :entry="cdUpItem" :index="0" :cd="changeDir"/>
+<template v-for="(item, index) in dirList" :key="item.name">
+<tr v-if="showHidden || !(item.attr & 0x02)">
+<DirEntry :entry="item" :index="index" :cd="changeDir" :open="openPath"/>
+</tr>
+</template>
+</table>
+</template>
+ 
+<style>
+ table {
+  border: 1.5px solid gray;
+  border-radius: 3px;
+  background-color: #fff;
+  border-collapse: collapse;
+  }
+  
+  tr, td {
+  border: 1px solid gray;
+  }
+  
+  th {
+   background-color: #DDD;
+   border: 1px solid black;
+   color: black;
+   
+  }
+</style>

@@ -86,10 +86,9 @@
  
 <template>
 <hr/><br/>
-     &nbsp;
-     <button type="button" id="getDumpButton" @click="dumpFile">Dump File</button><br>
-		 <button type="button" id="uploadButton" @click="upload">Upload</button><br>
- <hr/> </template>
+<button type="button" id="getDumpButton" @click="dumpFile">Dump File</button>
+<button type="button" id="uploadButton" @click="upload">Upload</button>
+</template>
  
  <style>
  

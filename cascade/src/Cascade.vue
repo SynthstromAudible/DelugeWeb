@@ -3,6 +3,8 @@
   import {onMounted, ref} from 'vue';
 	import DirView from "./DirView.vue";
 	import MemDump from "./MemDump.vue";
+
+	let showLogWindow = ref(false);
   let midiLog = ref("");
   
    onMounted(() => {
@@ -10,21 +12,27 @@
 			informRef(midiLog);
 	});
 
+ function turnOnDebug() {
+  showLogWindow.value = true;
+ 	getDebug();
+ }
 
- </script>
+ function turnOffDebug() {
+  stopDebug();
+  showLogWindow.value = false;
+ }
+ 
+</script>
  
 <template>
 <div class='ingroup' id='ingroup' width='512px'>
-
-&nbsp;
-
 <br/>Midi:
      in: <select id="chooseIn"  @change="onChangeIn"><option label="(none)" value="" id="noneInput"/></select>
      out: <select id="chooseOut" @change="onChangeOut"><option label="(none)" value="" id="noneOutput"/></select>
      &nbsp;
-     <button type="button" id="getDebugButton" @click="getDebug">Start SysEx</button>
+     <button type="button" id="getDebugButton" @click="turnOnDebug">Start SysEx</button>
      &nbsp;
-     <button type="button" id="stopDebugButton" @click="stopDebug">Stop SysEx</button>
+     <button type="button" id="stopDebugButton" @click="turnOffDebug">Stop SysEx</button>
 
 <p/>
 </div>
@@ -33,14 +41,14 @@
 
 <MemDump/>
 <DirView/>
-
+<template v-if="showLogWindow">
 <hr/>
 <p/>
 <div class='status' id="midiStatus">inactive</div>
 <p/>
 <div id="debugOutput" class="outbox"  v-html="midiLog">
  </div>
- 
+</template>
 </template>
 
 <style>
