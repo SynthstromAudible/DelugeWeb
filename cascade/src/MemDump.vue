@@ -1,7 +1,13 @@
  <script setup>
   import {ref} from 'vue';
   import {sendJsonRequest, GetAttachedUint8Array, pack8bitTo7bit} from "./JsonReplyHandler.js";
-
+  import {editText, setOpener} from "./common.js";
+  import { useRoute, useRouter } from 'vue-router';
+  
+  
+  const router = useRouter();
+	const route = useRoute();
+	
   let dirList = ref([]);
   const blkSize = 20;
 	let dirpath = ref("/KITS");
@@ -12,25 +18,45 @@
 	let endT;
 	let startR;
 	let endR;
-	let working = [];
+	let working;
+	let workingAddr = 0;
 	
-	function readCallback(verb, object, data, payoff, zeroX) {
-		console.log("*** Read callback");
-		let params = object[verb];
-		let attached = GetAttachedUint8Array(data, zeroX);
-		const decoder = new TextDecoder();
-		let str = decoder.decode(attached);
-		console.log(str);
-
-		let clos = {};
-		clos.fid = params.fid;
- 	  sendJsonRequest("close", clos, ()=>{});
-
+	function closeDone(erb, object, data, payoff, zeroX) {
+		router.replace('/editor');
 	}
 	
+	function readCallback(verb, object, data, payoff, zeroX) {
+		let resp = object[verb];
+		let attached = GetAttachedUint8Array(data, zeroX);
+		if (attached.length > 0) {
+			  working.set(attached, workingAddr);
+		} else {
+				if (working.length > 0) {
+					const decoder = new TextDecoder();
+					let str = decoder.decode(working);
+					editText.value =  str;
+				}
+				let clos = {};
+				clos.fid = resp.fid;
+ 	  		sendJsonRequest("close", clos, closeDone);
+ 	  		endT = Date.now();
+ 	  		let dT = endT - startT;
+ 	  		console.log("dT: " + dT);
+ 	  		return;
+		}
+		let params = {};
+		params.fid = resp.fid;
+		params.addr = workingAddr += resp.size;
+	  params.size = 512;
+	  sendJsonRequest("read", params, readCallback);
+	  //console.log("read called");
+	}
+
 
 	function openCallback(verb, object, data, payoff, zeroX) {
 		let resp = object[verb];
+		working = new Uint8Array(resp.size);
+		console.log("Size: " + resp.size);
 		let params = {};
 		params.fid = resp.fid;
 		params.addr = 0;
@@ -40,29 +66,20 @@
 	  	return;
 	  }
 	  sendJsonRequest("read", params, readCallback);
+	  console.log("read called from open.");
 	}
 
 	
-	function dumpFile() {
+	function dumpFile(path) {
+		startT = Date.now();
 		let params = {};
-		params.path = '/SONGS/SONG001.XML';
-		params["r#"] = msgCtr++;
-
+		params.path = path;
+		workingAddr = 0;
 		sendJsonRequest("open", params, openCallback);
 	}
 	
+	setOpener(dumpFile);
 
-	function getDump() {
-		 let params = {};
-		 params.addr = 0x20000000;
-		 params.size = 256;
-		 params.fid = 0;
-		 working = [];
-		 dirList.value = [];
-
-		 sendJsonRequest("read", params);
-	}
-	
 	function writeCB(verb, js, data, payloadOffset, zeroX)
 	{
 	
@@ -89,8 +106,3 @@
 <button type="button" id="getDumpButton" @click="dumpFile">Dump File</button>
 <button type="button" id="uploadButton" @click="upload">Upload</button>
 </template>
- 
- <style>
- 
- </style>
- 

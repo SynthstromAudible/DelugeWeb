@@ -1,18 +1,11 @@
- <script setup>
-  import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
-  import {onMounted, ref} from 'vue';
-	import DirView from "./DirView.vue";
-	import MemDump from "./MemDump.vue";
-
-	let showLogWindow = ref(false);
-  let midiLog = ref("");
-  
-   onMounted(() => {
-			// startup();
-			informRef(midiLog);
-	});
-
- function turnOnDebug() {
+<script setup>
+	 import { useRoute, useRouter } from 'vue-router';
+	   import {onMounted, ref} from 'vue';
+	   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
+	const router = useRouter();
+	const route = useRoute();
+	
+	function turnOnDebug() {
   showLogWindow.value = true;
  	getDebug();
  }
@@ -22,25 +15,42 @@
   showLogWindow.value = false;
  }
  
-</script>
+ 	let showLogWindow = ref(false);
+  let midiLog = ref("");
+  informRef(midiLog);
  
+
+</script>
+
 <template>
+  <p>
+<strong>Current route path:</strong> {{ route.fullPath }}
+  </p>
+
+<br/>
+  <nav>
+    <RouterLink to="/">Go to Home</RouterLink><p/>
+    <RouterLink to="/editor">Go to Editor</RouterLink>
+  </nav>
+<br/>
 <div class='ingroup' id='ingroup' width='512px'>
 <br/>Midi:
      in: <select id="chooseIn"  @change="onChangeIn"><option label="(none)" value="" id="noneInput"/></select>
      out: <select id="chooseOut" @change="onChangeOut"><option label="(none)" value="" id="noneOutput"/></select>
      &nbsp;
-     <button type="button" id="getDebugButton" @click="turnOnDebug">Start SysEx</button>
-     &nbsp;
-     <button type="button" id="stopDebugButton" @click="turnOffDebug">Stop SysEx</button>
+		 <template v-if="showLogWindow">
+          <button type="button" id="stopDebugButton" @click="turnOffDebug">Stop Debug</button>
+     </template>
+     <template v-if="!showLogWindow">
+          <button type="button" id="getDebugButton" @click="turnOnDebug">Debug</button>
+     </template>
 
 <p/>
 </div>
-
 <p/>
-
-<MemDump/>
-<DirView/>
+<main>
+<RouterView />
+</main>
 <template v-if="showLogWindow">
 <hr/>
 <p/>
@@ -53,11 +63,6 @@
 
 <style>
 
-
-canvas {
-  border:1px solid #000000;
-}
-
 .outbox {
   border:1px solid #000000;
   overflow-y: scroll;
@@ -69,5 +74,4 @@ canvas {
   margin-bottom: 10px;
   margin-right: 30px;
 }
-
 </style>

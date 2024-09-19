@@ -9,16 +9,19 @@ let callbackIndexArray = new Array(128);
   
   	  let zeroX = data.length - 1;
   	  let replyID = data[payloadOffset + 1];
-  		for (let i = payloadOffset + 2; i < (data.length - 2); ++i)
+  		for (let i = payloadOffset + 2; i < (data.length - 1); ++i)
   			if (data[i] == 0) {
   					zeroX = i;
   					break;
   			}
    	  let textPart = data.subarray(payloadOffset + 2, zeroX);
   	  let dec = new TextDecoder().decode(textPart);
+  	  //console.log(dec);
   	  let js = JSON.parse(dec);
   	  let verb;
- 
+ 			let furr = dec;
+ 			let purr = textPart;
+ 		
   	  for (const v in js) {
   	  	verb = v;
   	  	break;

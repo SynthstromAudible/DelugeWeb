@@ -2,6 +2,7 @@
   import {ref} from 'vue';
   import {sendJsonRequest} from "./JsonReplyHandler.js";
   import DirEntry from "./DirEntry.vue";
+  import {openEditOn, editPath} from "./common.js";
 
   let dirList = ref([]);
   const blkSize = 20;
@@ -57,8 +58,9 @@ let cdUpItem = {name: "..", attr: 0x10};
 function openPath(dEntry) {
 	let fullPath = dirpath.value + '/' +  dEntry.name;
 	console.log(fullPath);
+	openEditOn(fullPath);
 }
- 
+
 </script>
 
 <template>
@@ -66,7 +68,7 @@ function openPath(dEntry) {
 <input v-model="dirpath">&nbsp;
 <input type="checkbox" id="checkbox" label="Show hidden files" v-model="showHidden">
 <label for="checkbox">Show hidden</label><p/><br/>
-<table>
+<table><tbody>
 <tr><th>[&nbsp;]</th><th>Name</th><th>Size</th></tr>
 <DirEntry :entry="cdUpItem" :index="0" :cd="changeDir"/>
 <template v-for="(item, index) in dirList" :key="item.name">
@@ -74,7 +76,7 @@ function openPath(dEntry) {
 <DirEntry :entry="item" :index="index" :cd="changeDir" :open="openPath"/>
 </tr>
 </template>
-</table>
+</tbody></table>
 </template>
  
 <style>
