@@ -6,6 +6,8 @@ import CodeMirror from 'vue-codemirror6';
 
 // CodeMirror extensions
 import { markdown as md } from '@codemirror/lang-markdown';
+import { json } from '@codemirror/lang-json';
+import { xml } from '@codemirror/lang-xml';
 import type { LanguageSupport } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
 import type { ViewUpdate } from '@codemirror/view';
@@ -25,7 +27,7 @@ const dark: Ref<boolean> = ref(
  *
  * @see {@link https://codemirror.net/6/docs/ref/#language | @codemirror/language}
  */
-const lang: LanguageSupport = md();
+const lang: LanguageSupport = xml();
 
 </script>
 

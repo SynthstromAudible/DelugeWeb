@@ -6,7 +6,7 @@
 
   let dirList = ref([]);
   const blkSize = 20;
-	let dirpath = ref("/TEST");
+	let dirpath = ref("/");
 	let showHidden = ref(true);
 	
 	function getDirInfo() {

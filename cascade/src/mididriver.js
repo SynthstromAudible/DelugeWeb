@@ -135,20 +135,6 @@ function stopDebug() {
 }
 
 
-function getBlock() {
-	   delugeOut.send([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, 0x06, 0xf7]); 
-}
-
-
-
-
-let N = 10;
-let blockCtr = 0;
-let startT = 0;
-let endT = 0;
-
-
-
 window.addEventListener('load', function() {
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess({ sysex: true }).then( onMIDISuccess, onMIDIFailure );
@@ -172,14 +158,11 @@ let lastmsg;
 function handleData(msg) {
   lastmsg = msg
   // console.log(msg.data);
-  if (msg.data.length > 8) {
-    $("dataLog").text("size: " + msg.data.length);
-  }
   decode(msg.data)
 }
 
 let lineBuff = [];
-let lineMax = 100;
+let lineMax = 1000;
 
 function clearLog() {
 	lineBuff = [];

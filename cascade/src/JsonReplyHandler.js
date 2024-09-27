@@ -48,6 +48,8 @@ let callbackIndexArray = new Array(128);
 
 let msgSeqNumber = 1; // The "next" msg sequence # to send.
 
+const sep = new Uint8Array([0x00]);
+const suffix = new Uint8Array([0xf7]);
 function sendJsonRequest(cmd, body, callback, aux) {
 		 let seqNumberSent = msgSeqNumber;
 		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, msgSeqNumber]);
@@ -56,13 +58,13 @@ function sendJsonRequest(cmd, body, callback, aux) {
 		 let msgOut = {}
 		 msgOut[cmd] = body;
 	   let cmdLine = JSON.stringify(msgOut);
-		 let suffix = new Uint8Array([0xf7]);
+
 		 const textEncoder = new TextEncoder();
 		 const cmdBytes = textEncoder.encode(cmdLine);
 
 		 let msg;
 		 if (aux !== undefined) {
-		 	 let sep = new Uint8Array([0x00]);
+
 		 	 msg = mergeUint8Arrays(prefix, cmdBytes, sep, aux, suffix);
 		} else {
 			 msg = mergeUint8Arrays(prefix, cmdBytes, suffix);

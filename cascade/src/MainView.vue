@@ -1,8 +1,11 @@
- <script setup>
+<script setup lang="ts">
 
   import {onMounted, ref} from 'vue';
 	import DirView from "./DirView.vue";
-	import MemDump from "./MemDump.vue";
+	import FileTransfer from "./FileTransfer.vue";
+
+	import PlayAudio from "./PlayAudio.vue";
+	
 	import { useRoute, useRouter } from 'vue-router'
 	
   const router = useRouter();
@@ -17,12 +20,9 @@
  
 <template>
 <br/>
-<button type="button" id="editor" @click="gotoEditor">Open Editor</button>
-<p/>
-
-<MemDump/>
+<PlayAudio />
+<FileTransfer/>
 <DirView/>
-
 </template>
 
 <style>

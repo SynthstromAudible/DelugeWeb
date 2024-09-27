@@ -23,16 +23,13 @@
 </script>
 
 <template>
-  <p>
+<br/>
 <strong>Current route path:</strong> {{ route.fullPath }}
-  </p>
-
 <br/>
   <nav>
-    <RouterLink to="/">Go to Home</RouterLink><p/>
-    <RouterLink to="/editor">Go to Editor</RouterLink>
+<RouterLink to="/">Go to Home</RouterLink>&nbsp;&nbsp;
+<RouterLink to="/editor">Go to Editor</RouterLink>&nbsp;&nbsp;
   </nav>
-<br/>
 <div class='ingroup' id='ingroup' width='512px'>
 <br/>Midi:
      in: <select id="chooseIn"  @change="onChangeIn"><option label="(none)" value="" id="noneInput"/></select>
@@ -44,10 +41,8 @@
      <template v-if="!showLogWindow">
           <button type="button" id="getDebugButton" @click="turnOnDebug">Debug</button>
      </template>
-
-<p/>
 </div>
-<p/>
+<br/>
 <main>
 <RouterView />
 </main>
