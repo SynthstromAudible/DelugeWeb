@@ -4,7 +4,7 @@
   import {editText, editPath, setOpener, waverly} from "./common.js";
   import { useRoute, useRouter } from 'vue-router';
   
-  const blockSize = 768;
+  const blockSize = 128;
   
   const router = useRouter();
 	const route = useRoute();
@@ -110,6 +110,58 @@
 	}
 
 	
+
+
+	function writeToFile(path, fromByteArray, done) {
+	let toWrite = fromByteArray.length;
+	let doneCB = done;
+	let writtenSoFar = 0;
+	let writeOffset = 0;
+
+	function closeWrite(fid)
+	{
+			let clos = {};
+			clos.fid = fid;
+			sendJsonRequest("close", clos, done);
+	};
+
+	function writeNext(verb, js, data, payloadOffset, zeroX) {
+		let resp = js[verb];
+		if (resp.err != 0 || writtenSoFar >= toWrite) {
+ 	  		closeWrite(resp.fid);
+ 	  		return;
+		} else {
+			  writtenSoFar += resp.size;
+			  let params = {};
+			  params.fid = resp.fid;
+				params.addr = writtenSoFar;
+				let sizeToWrite = toWrite - writtenSoFar;
+				if (sizeToWrite > blockSize) sizeToWrite = blockSize;
+				params.size = sizeToWrite;
+				
+				let packed = pack8bitTo7bit(fromByteArray, writtenSoFar, sizeToWrite);
+	 
+				sendJsonRequest("write", params, writeNext, packed);
+				return;
+		   }
+		}
+		// Kickoff the writing with a fake initial request.
+			function postOpen(verb, js, data, payloadOffset, zeroX) {
+					let openPB = js[verb];
+				// create a fake writeNext to start things.
+				  // if more params are actually used, include them below.
+				  let kickoff = {"dummy": {"fid": openPB.fid, "size": 0, "err": 0}};
+					writeNext("dummy", kickoff); 
+		}
+
+		let oparams = {};
+		oparams.path = path;
+		oparams.write = 1;
+		sendJsonRequest("open", oparams, postOpen);
+	}
+
+	
+	
 	function dumpFile(path) {
 		fullPath.value = path;
 		startT = Date.now();
@@ -120,23 +172,18 @@
 	
 	setOpener(dumpFile);
 
-	function writeCB(verb, js, data, payloadOffset, zeroX)
-	{
-	
-	}
-
 
  	function upload() {
  		 let params = {};
 		 params.addr = 0;
 		 params.size = 1024;
-		 let upbuf = new Uint8Array(512);
+		 let upbuf = new Uint8Array(1000);
 		 for (let i = 0; i < upbuf.length; ++i) {
 		 	upbuf[i] = i;
 		 }
-	 let packed = pack8bitTo7bit(upbuf, 0, 512);
-	 sendJsonRequest("write", params, writeCB, packed);
-	 console.log("Request sent");
+		 
+	   writeToFile('/TEST/auptest.bin', upbuf, ()=>{console.log("DONE UPLOAD");});
+
  	}
  	
 
