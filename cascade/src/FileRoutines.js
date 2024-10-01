@@ -4,7 +4,7 @@
   const blockSize = 256;
 
 	const timeIt = true;
-
+// doneCB(path, err, data);
 function readFile(readPath, doneCB) {
 
     let startT;
@@ -66,7 +66,7 @@ function readFile(readPath, doneCB) {
         let resp = object[verb];
 
         if (resp.err != 0) {
-            doneCB(readPath, resp.err);
+            if (doneCB !== undefined) doneCB(readPath, resp.err);
             return;
         }
         working = new Uint8Array(resp.size);
@@ -81,6 +81,7 @@ function readFile(readPath, doneCB) {
         params.size = blockSize;
         if (resp.fid === undefined || resp.fid < 1) {
             console.log("*** bad file open");
+            if (doneCB !== undefined) doneCB(-1);
             return;
         }
         highestAskedFor += blockSize;
@@ -117,7 +118,7 @@ function openAndConvert(path) {
 // Setup link through common.js so others can call it.
 	setOpener(openAndConvert);
 
-
+// doneCB(err);
 function writeToFile(path, fromByteArray, doneCB) {
     let toWrite = fromByteArray.length;
     let writtenSoFar = 0;
@@ -125,7 +126,7 @@ function writeToFile(path, fromByteArray, doneCB) {
 
 		function callDone(verb, js) {
 		  let resp = js[verb];
-			doneCB(resp.err);
+			if (doneCB !== undefined) doneCB(resp.err);
 		}
 
     function closeWrite(fid) {
@@ -158,7 +159,7 @@ function writeToFile(path, fromByteArray, doneCB) {
         let openPB = js[verb];
         if (openPB.err != 0) {
         	console.log("Error opening for writing: " + openPB.err);
-        	doneCB(openPB.err);
+        	if (doneCB !== undefined) doneCB(openPB.err);
         	return;
         }
         // create a fake writeNext to start things.
@@ -218,6 +219,7 @@ function upload() {
  
  	const linesPerRequest = 20;
 
+// dirDoneCB(err, entriesArray);
 	function getDirInfo(dirpath, dirDoneCB) {
 	    let working = [];
 
