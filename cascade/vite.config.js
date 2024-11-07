@@ -13,6 +13,13 @@ export default defineConfig({
       cert: fs.readFileSync('./certs/certificate.pem'),
     },
   },
+  	preview: {
+	  port: 8000,
+    https: {
+      key: fs.readFileSync('./certs/key.pem'),
+      cert: fs.readFileSync('./certs/certificate.pem'),
+    },
+  },
   plugins: [
     vue(),
   ],

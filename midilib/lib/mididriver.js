@@ -228,9 +228,4 @@ function setSysExCallback(callback) {
 }
 
 
-function informRef(ref)
-{
-	textref = ref;
-}
-
-export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, informRef, delugeOut};
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, delugeOut};

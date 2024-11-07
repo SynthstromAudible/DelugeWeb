@@ -1,7 +1,7 @@
 <script setup>
 	 import { useRoute, useRouter } from 'vue-router';
 	   import {onMounted, ref} from 'vue';
-	   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "./mididriver.js";
+	   import {getDebug, stopDebug, onChangeIn, onChangeOut} from "midilib";
 	const router = useRouter();
 	const route = useRoute();
 	
@@ -17,8 +17,6 @@
  
  	let showLogWindow = ref(false);
   let midiLog = ref("");
-  informRef(midiLog);
- 
 
 </script>
 

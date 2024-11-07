@@ -1,9 +1,8 @@
  <script setup>
   import {ref} from 'vue';
-  import {sendJsonRequest} from "./JsonReplyHandler.js";
+  import {sendJsonRequest, getDirInfo} from "midilib";
   import DirEntry from "./DirEntry.vue";
   import {openEditOn, editPath} from "./common.js";
-  import {getDirInfo} from "./FileRoutines.js";
 
   let dirList = ref([]);
 	let dirpath = ref("/");
@@ -35,7 +34,7 @@ let cdUpItem = {name: "..", attr: 0x10};
 function openPath(dEntry) {
 	let fullPath = dirpath.value + '/' +  dEntry.name;
 	console.log(fullPath);
-	openEditOn(fullPath);
+	if (openEditOn !== undefined) openEditOn(fullPath);
 }
 
 function dirGetter() {

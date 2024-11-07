@@ -1,0 +1,30 @@
+{
+  "name": "midilib",
+  "version": "1.0.0",
+  "description": "A library for accessing Midi SysEx features on the Deluge",
+  "files": ["dist"],
+  "main":"./dist/midilib.umd.js",
+  "module":"./dist/midilib.es.js",
+  
+  "exports": {
+   ".": {
+      "import": "./dist/midilib.es.js",
+      "require": "./dist/midilib.umd.js"
+    }
+  },
+  
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  	"jquery": "^3.7.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}

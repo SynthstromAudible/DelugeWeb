@@ -16,6 +16,7 @@
     "@codemirror/view": "^6.33.0",
     "codemirror": "^6.0.1",
     "jquery": "^3.7.1",
+    "midilib": "file:../midilib",
     "peaks.js": "^3.4.2",
     "vue": "^3.3.4",
     "vue-codemirror": "^6.1.1",
