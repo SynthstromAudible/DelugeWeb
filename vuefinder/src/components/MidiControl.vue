@@ -1,6 +1,6 @@
 <script setup>
 	   import {onMounted, ref} from 'vue';
-	   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "../../../midilib/dist/MidiLib.es.js";
+	   import {getDebug, stopDebug, onChangeIn, onChangeOut, informRef} from "midilib";
 	
 	function turnOnDebug() {
   showLogWindow.value = true;
@@ -14,7 +14,8 @@
  
  	let showLogWindow = ref(false);
   let midiLog = ref("");
-  informRef(midiLog);
+  let midiStatus = ref("");
+  informRef(midiLog, midiStatus);
  
 </script>
 
@@ -33,7 +34,7 @@ Midi:
      </template>
 </div>
 <template v-if="showLogWindow">
-<div class='status' id="midiStatus">inactive</div>
+<div class='status' id="midiStatus">{{midiStatus}}</div>
 <p/>
 <div id="debugOutput" class="outbox"  v-html="midiLog">
  </div>

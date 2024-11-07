@@ -1,4 +1,3 @@
-import $ from'jquery';
 import {handleJsonCB} from "./JsonReplyHandler.js";
 /** @type {MIDIAccess} */
 let midi = null;
@@ -11,18 +10,41 @@ let sysExCallback;
 let jsonCallback;
 
 let textref;
+let statusRef;
 
 export var sysExRunning = false;
 
+// Create a fake object to absorb jquery functions
+// for objects not found in the html document
+// without freaking out.
+let dummyObj = {
+		innerText: "",
+		children: [],
+		append: ()=>{},
+		selected: false
+};
+
+function htmlElement(selector) {
+	let elem = document.querySelector(selector);
+	if (elem !== undefined && elem !== null) return elem;
+	return dummyObj;
+}
+
 function setstatus(text) {
-  $("#midiStatus").text(text);
+	if (statusRef !== undefined) {
+		statusRef.value = text;
+		return;
+	}
+	// The following does not work well when midiStatus is inside a Vue component.
+	let statusElem = htmlElement("#midiStatus");
+	statusElem.innerText = text;
 }
 
 function populateDevices() {
   for (const entry of midi.inputs) {
     const port = entry[1];
     const opt = new Option(port.name, port.id);
-    $("#chooseIn").append(opt);
+    htmlElement("#chooseIn").append(opt);
     if (port.name.includes("Deluge Port 1")) {
       opt.selected = true;
       setInput(port);
@@ -31,7 +53,7 @@ function populateDevices() {
   for (const entry of midi.outputs) {
     const port = entry[1];
     const opt = new Option(port.name, port.id);
-    $("#chooseOut").append(opt);
+    htmlElement("#chooseOut").append(opt);
     if (port.name.includes("Deluge Port 1")) {
       opt.selected = true;
       delugeOut = port;
@@ -70,14 +92,15 @@ function onStateChange(ev) {
   const delet = (port.state == "disconnected");
   if (port.type == "input") {
     let found = false;
-    let children = $("#chooseIn").children();
+    let elem = htmlElement("#chooseIn");
+    let children = elem.children;
     for (let i=0; i < children.length; i++) {
       if (children[i].value == port.id) {
         found = true;
         if (delet) {
           children[i].remove();
           if (port == delugeIn) {
-            $("noneInput").selected = true;
+            htmlElement("noneInput").selected = true;
             // or maybe not, if id: are preserved during a disconnect/connect cycle
             setInput(null);
           }
@@ -87,18 +110,18 @@ function onStateChange(ev) {
     }
     if (!found && !delet) {
       const opt = new Option(port.name, port.id);
-      $("#chooseIn").append(opt);
+      htmlElement("#chooseIn").append(opt);
     }
   } else {
     let found = false;
-    let children = $("#chooseOut").children();
+    let children = htmlElement("#chooseOut").children;
     for (let i=0; i < children.length; i++) {
       if (children[i].value == port.id) {
         found = true;
         if (delet) {
           children[i].remove();
           if (port == delugeOut) {
-            $("#noneOutput").selected = true;
+            htmlElement("#noneOutput").selected = true;
             // or maybe not, if id: are preserved during a disconnect/connect cycle
             delugeOut = null;
           }
@@ -108,7 +131,7 @@ function onStateChange(ev) {
     }
     if (!found && !delet) {
       const opt = new Option(port.name, port.id);
-      $("#chooseOut").append(opt);
+      htmlElement("#chooseOut").append(opt);
     }
   }
 }
@@ -142,13 +165,6 @@ window.addEventListener('load', function() {
     setstatus("webmidi unavail, check browser permissions");
   }
 
-/*
-  $("#getDebugButton").on("click", getDebug);
-  $("#stopDebugButton").on("click", stopDebug);
-  
-  $("#chooseIn").on("change", onChangeIn);
-  $("#chooseOut").on("change", onChangeOut);
-*/
   return;
 });
 
@@ -204,10 +220,6 @@ function decode(data) {
 		if (textref !== undefined) {
 			textref.value = html;
 		}
-   // $('#debugOutput').empty();
-   // $('#debugOutput').append(html);
-   
- 
   } else if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x05) {
   		 handleJsonCB(data, payloadOffset);
   }
@@ -227,5 +239,10 @@ function setSysExCallback(callback) {
 	sysExCallback = callback;
 }
 
+function informRef(ref, statRef)
+{
+	textref = ref;
+	statusRef = statRef;
+}
 
-export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, delugeOut};
+export {setSysExCallback, getDebug, stopDebug, onChangeIn, onChangeOut, clearLog, delugeOut, informRef};
