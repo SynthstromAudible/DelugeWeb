@@ -5,6 +5,8 @@ import ReactDOM from "react-dom";
 import {convertHexTo50} from './FmtSound.js';;
 
 import tippy from "tippy.js";
+import 'tippy.js/dist/tippy.css'; // optional for styling
+import 'tippy.js/themes/translucent.css';
 import {jsonequals, reviveClass, forceArray, getClipArray, isArrayLike, classReplacer, zonkDNS} from "./JsonXMLUtils.js";
 import {Kit, Sound, Song, MidiChannel, CVChannel, AudioTrack} from "./Classes.jsx";
 import {trackKind, yToNoteName, patchInfo, makeScaleTab, noteToYOffsetInScale} from "./SongUtils.js";
@@ -375,11 +377,8 @@ function activateTippy()
  
 	tippy('.npop', {
 		arrow: true,
-//		html: '#npoptemp',
-		
+		theme: 'translucent',
 		onShow(pop) {
-
-	
 			let text = pop.reference.getAttribute('data-text');
 			if (text !== undefined && text !== null) {
 				pop.setContent(text);
