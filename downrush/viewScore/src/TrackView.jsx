@@ -375,15 +375,14 @@ function activateTippy()
  
 	tippy('.npop', {
 		arrow: true,
-		html: '#npoptemp',
+//		html: '#npoptemp',
 		
 		onShow(pop) {
-		// `this` inside callbacks refers to the popper element
-		return;
-			const content = pop.querySelector('.tippy-content');
-			let text; // = pop.reference.getAttribute('data-text');
-			if (text) {
-				content.innerHTML = text;
+
+	
+			let text = pop.reference.getAttribute('data-text');
+			if (text !== undefined && text !== null) {
+				pop.setContent(text);
 				return;
 			}
 
@@ -434,12 +433,10 @@ function activateTippy()
 				noteprob: condtext,
 			});
 			*/
-			content.innerHTML = noteInfo;
+			pop.setContent(noteInfo);
 			},
 		onHidden(pop) {
-		  return;
-			const content = pop.querySelector('.tippy-content')
-			content.innerHTML = '';
+			pop.setContent('');
 			},
 	});
 }

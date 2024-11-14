@@ -53,21 +53,6 @@ function genColorTab(colors)
 	return colTab;
 }
 
-function enableColorPops() {
-		tippy('.coltab', {
-		arrow: true,
-		html: '#npoptemp',
-		onShow(pop) {
-			const content = this.querySelector('.tippy-content');
-			let colorInfo = pop.reference.getAttribute('style');
-			let colhex = pop.reference.getAttribute('data-hex');
-			let colstyle = colorInfo.substring(17);
-			content.innerHTML = colhex + " " + colorInfo.substring(17);
-		//	content.innerHTML = noteInfo;
-		},
-	});
-}
-
 /* 
 function formatModKnobs(knobs, title, obj)
 {
