@@ -73,7 +73,10 @@ class DelugeFileStore extends FileStore {
   }
 
 	exists(path, done) {
-		done(false);
+		sendJsonRequest("info", params,(verb, object, data, payoff, zeroX)=>{
+  	let params = object[verb];
+  			done(params.err);
+  	});
 	}
 
 	read(path, done) {

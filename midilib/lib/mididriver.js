@@ -45,7 +45,7 @@ function populateDevices() {
     const port = entry[1];
     const opt = new Option(port.name, port.id);
     htmlElement("#chooseIn").append(opt);
-    if (port.name.includes("Deluge Port 1")) {
+    if (port.name.includes("Deluge Port 3")) {
       opt.selected = true;
       setInput(port);
     }
@@ -54,7 +54,7 @@ function populateDevices() {
     const port = entry[1];
     const opt = new Option(port.name, port.id);
     htmlElement("#chooseOut").append(opt);
-    if (port.name.includes("Deluge Port 1")) {
+    if (port.name.includes("Deluge Port 3")) {
       opt.selected = true;
       delugeOut = port;
     }
