@@ -1,7 +1,7 @@
 <script setup>
 	 import { useRoute, useRouter } from 'vue-router';
 	   import {onMounted, ref} from 'vue';
-	   import {getDebug, stopDebug, onChangeIn, onChangeOut} from "midilib";
+	   import {getDebug, stopDebug, onChangeIn, onChangeOut} from "../midilib/main.js";
 	const router = useRouter();
 	const route = useRoute();
 	

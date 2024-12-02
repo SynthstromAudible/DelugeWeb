@@ -1,6 +1,6 @@
  <script setup>
   import {ref} from 'vue';
-  import {sendJsonRequest, getDirInfo} from "midilib";
+  import {sendJsonRequest, getDirInfo} from "../midilib/main.js";
   import DirEntry from "./DirEntry.vue";
   import {openEditOn, editPath} from "./common.js";
 
