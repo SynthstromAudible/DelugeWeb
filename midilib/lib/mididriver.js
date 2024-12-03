@@ -1,4 +1,4 @@
-import {handleJsonCB} from "./JsonReplyHandler.js";
+import {handleJsonCB, requestSessionId} from "./JsonReplyHandler.js";
 /** @type {MIDIAccess} */
 let midi = null;
 /** @type {MIDIInput} */
@@ -139,8 +139,9 @@ function onStateChange(ev) {
 function onMIDISuccess(midiAccess) {
   setstatus("webmidi ready");
   midi = midiAccess; // store in the global (in real usage, would probably keep in an object instance)
-  populateDevices()
-  midi.addEventListener("statechange", onStateChange)
+  populateDevices();
+  midi.addEventListener("statechange", onStateChange);
+  requestSessionId();
 }
 
 function onMIDIFailure(msg) {
@@ -220,7 +221,7 @@ function decode(data) {
 		if (textref !== undefined) {
 			textref.value = html;
 		}
-  } else if (data.length >= (payloadOffset + 3) && data[payloadOffset] == 0x05) {
+  } else if (data.length >= (payloadOffset + 3) && (data[payloadOffset] == 0x04 || data[payloadOffset] == 0x05)) {
   		 handleJsonCB(data, payloadOffset);
   }
 }

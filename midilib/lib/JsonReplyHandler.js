@@ -42,19 +42,63 @@ let callbackIndexArray = new Array(128);
   	  		callee(verb, js, data, payloadOffset, zeroX);
   	  		callbackIndexArray[replyID] = undefined;
   	  } else {
-  	  	console.log("*** undefined callback for Json msg: " + verb + " " + js);
+  	  	if (replyID > 0 && (replyID >= midMin && replyID <= midMax)) {
+  	  			console.log("*** undefined callback for Json msg: " + verb + " " + js);
+  	 		 }
   	  }
 }
 
 let msgSeqNumber = 1; // The "next" msg sequence # to send.
 
+let sid = -1;
+let midBase = 0;
+let midMin = 1;
+let midMax = 7;
+
+let ourUUID = generateUUID();
+
+function generateUUID() {
+  return new Array(4)
+    .fill(0)
+    .map(() => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16))
+    .join("-");
+}
+
+
 const sep = new Uint8Array([0x00]);
 const suffix = new Uint8Array([0xf7]);
+
+function handleSesssionReply(verb, object, data, payoff, zeroX) {
+	  let resp = object[verb];
+	  if (resp.tag === ourUUID) {
+
+	  	sid = resp.sid;
+	  	midBase = resp.midBase;
+	  	midMin = resp.midMin;
+	  	midMax = resp.midMax;
+	  	msgSeqNumber = midMin;
+	  	callbackDirectory.delete("^session");
+	  	console.log("session ID assigned: " + sid + " midMin: " + midMin + " midMax: " + midMax);
+	  }
+}
+
+function requestSessionId() {
+	   let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, 0]);
+		 let msgOut = {}
+		 msgOut["session"] = {"tag": ourUUID};
+		 let cmdLine = JSON.stringify(msgOut);
+		 const textEncoder = new TextEncoder();
+		 const cmdBytes = textEncoder.encode(cmdLine);
+		 let msg = mergeUint8Arrays(prefix, cmdBytes, suffix);
+		 callbackDirectory.set("^session",  handleSesssionReply);
+		 delugeOut.send(msg);
+}
+
 function sendJsonRequest(cmd, body, callback, aux) {
 		 let seqNumberSent = msgSeqNumber;
 		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, msgSeqNumber]);
 		 msgSeqNumber++;
-		 if (msgSeqNumber >= 128) msgSeqNumber = 1;
+		 if (msgSeqNumber >= midMax) msgSeqNumber = midMin;
 		 let msgOut = {}
 		 msgOut[cmd] = body;
 	   let cmdLine = JSON.stringify(msgOut);
@@ -166,4 +210,4 @@ function mergeUint8Arrays(...arrays) {
 
 
 
-export {sendJsonRequest, handleJsonCB, GetAttachedUint8Array, pack8bitTo7bit};
+export {requestSessionId, sendJsonRequest, handleJsonCB, GetAttachedUint8Array, pack8bitTo7bit};
