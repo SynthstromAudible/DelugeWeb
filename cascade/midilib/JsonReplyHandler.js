@@ -42,7 +42,7 @@ let callbackIndexArray = new Array(128);
   	  		callee(verb, js, data, payloadOffset, zeroX);
   	  		callbackIndexArray[replyID] = undefined;
   	  } else {
-  	  	if (replyID > 0 || (replyID >= sidBase && replyID <= sidMax)) {
+  	  	if (replyID > 0 || (replyID >= midMin && replyID <= midMax)) {
   	  			console.log("*** undefined callback for Json msg: " + verb + " " + js);
   	 		 }
   	  }
@@ -51,9 +51,9 @@ let callbackIndexArray = new Array(128);
 let msgSeqNumber = 1; // The "next" msg sequence # to send.
 
 let sid = -1;
-let sidBase = 0;
-let sidMin = 1;
-let sidMax = 7;
+let midBase = 0;
+let midMin = 1;
+let midMax = 7;
 
 let ourUUID = generateUUID();
 
@@ -73,12 +73,12 @@ function handleSesssionReply(verb, object, data, payoff, zeroX) {
 	  if (resp.tag === ourUUID) {
 
 	  	sid = resp.sid;
-	  	sidBase = resp.sidBase;
-	  	msgSeqNumber = sidBase;
-	  	sidMin = resp.sidMin;
-	  	sidMax = resp.sidMax;
+	  	midBase = resp.midBase;
+	  	midMin = resp.midMin;
+	  	midMax = resp.midMax;
+	  	msgSeqNumber = midMin;
 	  	callbackDirectory.delete("^session");
-	  	console.log("session ID assigned: " + sid);
+	  	console.log("session ID assigned: " + sid + " midMin: " + midMin + " midMax: " + midMax);
 	  }
 }
 
@@ -98,7 +98,7 @@ function sendJsonRequest(cmd, body, callback, aux) {
 		 let seqNumberSent = msgSeqNumber;
 		 let prefix = new Uint8Array([0xf0, 0x00, 0x21, 0x7B, 0x01, 0x04, msgSeqNumber]);
 		 msgSeqNumber++;
-		 if (msgSeqNumber >= sidMax) msgSeqNumber = sidMin;
+		 if (msgSeqNumber >= midMax) msgSeqNumber = midMin;
 		 let msgOut = {}
 		 msgOut[cmd] = body;
 	   let cmdLine = JSON.stringify(msgOut);

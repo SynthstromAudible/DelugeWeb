@@ -5,7 +5,8 @@
 	import FileTransfer from "./FileTransfer.vue";
 
 	import PlayAudio from "./PlayAudio.vue";
-	
+	import OLED from "./OLED.vue";
+	import Image from "./Image.vue";
 	import { useRoute, useRouter } from 'vue-router'
 	
   const router = useRouter();
@@ -23,6 +24,7 @@
 <PlayAudio />
 <FileTransfer/>
 <DirView/>
+<Image/>
 </template>
 
 <style>
