@@ -4,6 +4,7 @@ import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
+	/* uncomment this block to enable https. You may need to change some settings so this will actually work in Chrome.
 		server: {
 	  port: 8000,
     https: {
@@ -18,5 +19,6 @@ export default defineConfig({
       cert: fs.readFileSync('./certs/certificate.pem'),
     },
   },
+  */
   plugins: [react()],
 })

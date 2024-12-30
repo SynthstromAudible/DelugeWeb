@@ -6,6 +6,7 @@ import svgLoader from 'vite-svg-loader'
 import fs from 'fs';
 
 export default defineConfig({
+/* uncomment this block to enable https. You may need to change some settings so this will actually work in Chrome.
 	  server: {
 	  port: 8000,
     https: {
@@ -20,6 +21,7 @@ export default defineConfig({
       cert: fs.readFileSync('./certs/certificate.pem'),
     },
   },
+*/
     plugins: [
         vue(),
         svgLoader(),
